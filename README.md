@@ -1,0 +1,2 @@
+# Sevens
+A poker game
