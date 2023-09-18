@@ -20,7 +20,7 @@ class Effect:
 
         def enter(e):
             self.__enter_in_text = True
-            play_sound("home/enter")
+            play_sound("home/enter_text")
             self.c.itemconfig("home-effect-start", fill="gold")
 
         def leave(e):
@@ -28,7 +28,7 @@ class Effect:
             self.c.itemconfig("home-effect-start", fill="black")
 
         def press(e):
-            play_sound("home/press")
+            play_sound("home/press_text")
             self.end()
 
         canvas_reduction(self.c, self.cs, self.app.Musics,
@@ -59,7 +59,7 @@ class Effect:
         # title
         self.c.create_image(self.cs[0]//2, self.cs[1]//6,
                             image=tk_image(
-            f"logo.png",  height=int(self.cs[1]/3), dirpath="images\\effect\\title"),
+            f"logo.png",  height=int(self.cs[1]/3), dirpath="images\\effect\\text"),
             tags=("home-effect", "home-effect-title"))
 
         # press to start
@@ -125,13 +125,13 @@ class Effect:
             self.c.delete("home-effect-title")
             self.c.create_image(self.cs[0]//2, self.cs[1]//6,
                                 image=tk_image(
-                f"logo.png",  height=int(self.cs[1]/(3-i*0.2)), dirpath="images\\effect\\title"),
+                f"logo.png",  height=int(self.cs[1]/(3-i*0.2)), dirpath="images\\effect\\text"),
                 tags=("home-effect", "home-effect-title"))
             self.c.update()
             time.sleep(0.01)
 
-        # to select player
-        self.app.player.start()
+        # to select record
+        self.app.record.start()
 
     def loop(self):
         if not self.c.find_withtag("home-effect-start"):

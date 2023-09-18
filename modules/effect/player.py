@@ -16,6 +16,7 @@ class Effect:
         self.__player_state = 0
 
         def enter(r, c, limit):
+            play_sound("player/enter_frame")
             self.__player_enter = (r, c)
             self.__limit = limit
 
@@ -28,7 +29,8 @@ class Effect:
                         f"player-person{r}_{c}_{i}", 0, 30)
 
         def press(r, c):
-            pass
+            play_sound("player/press_frame")
+            self.end(r, c)
         color = {
             "1p": "red",
             "2p": "green",
@@ -48,7 +50,7 @@ class Effect:
                 self.c.create_image(w/4 * (2*column+1), h/4 * (2*row+1),
                                     image=tk_image("frame.png", int(
                                         w/2-30), int(h/2-30), dirpath="images\\system"),
-                                    tags=("player", f"player-frame{row}_{column}"))
+                                    tags=("player", f"player-frame{row}_{column}", f"player-whole{row}_{column}"))
                 for person in range(4):
                     base_w = w/4 * (2*column+1) - int(w/2-30) / 2
                     base_h = h/4 * (2*row+1) + int(h/2-30) / 2
@@ -57,7 +59,7 @@ class Effect:
                                         image=tk_image("person.png", span, int(
                                             (h/2-30)/2), dirpath="images\\system"),
                                         tags=(
-                                            "player", f"player-person{row}_{column}_{person}")
+                                            "player", f"player-person{row}_{column}_{person}", f"player-whole{row}_{column}")
                                         )
                     text = f"{person+1}p" if person+1 <= p else "com"
                     self.c.create_text(
@@ -65,29 +67,38 @@ class Effect:
                             (h/2-30)/8), anchor="s", text=text, font=font_get(
                                 font_span("com", int(span/3), upper_bound=int(
                                     (h/2-30)/8))
-                        ), fill=color[text], tags=("player", f"player-person{row}_{column}_{person}"))
+                        ), fill=color[text], tags=("player", f"player-person{row}_{column}_{person}", f"player-whole{row}_{column}"))
                 self.c.create_text(w/4 * (2*column+1), h /
                                    4 * (2*row+1) - int(h/2-30) / 4,
                                    text=f"{p} " +
                                    ("Player" if p == 1 else "Players"),
-                                   font=font_get(self.__font_size), fill="#ff6b87")
+                                   font=font_get(72), fill=color[f'{p}p'],
+                                   tags=("player", f"player-title{row}_{column}_{person}", f"player-whole{row}_{column}"))
                 self.c.tag_bind(
-                    f"player-frame{row}_{column}", "<Enter>", lambda e, r=row, c=column,
+                    f"player-whole{row}_{column}", "<Enter>", lambda e, r=row, c=column,
                     limit=base_h-5: enter(r, c, limit))
                 self.c.tag_bind(
-                    f"player-frame{row}_{column}", "<Leave>", lambda e, r=row, c=column: leave(r, c))
+                    f"player-whole{row}_{column}", "<Leave>", lambda e, r=row, c=column: leave(r, c))
                 self.c.tag_bind(
-                    f"player-frame{row}_{column}", "<Button-1>", lambda e, r=row, c=column: press(r, c))
+                    f"player-whole{row}_{column}", "<Button-1>", lambda e, r=row, c=column: press(r, c))
 
         self.player_timer = time.time()
 
-    def end(self):
-        pass
+    def end(self, r, c):
+        # delete not select
+        player_number = r*2 + c+1
+        for row in range(2):
+            for column in range(2):
+                if (r == row) and (c == column):
+                    continue
+                self.c.delete(f"player-whole{row}_{column}")
+                self.c.update()
+                time.sleep(0.5)
 
     def loop(self):
         if not self.c.find_withtag("player"):
             return
-        
+
         if (t := time.time()) - self.player_timer >= 0.4:
 
             if (s := self.__player_enter) is not None:

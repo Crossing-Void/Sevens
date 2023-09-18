@@ -35,6 +35,7 @@ class Main(Interface):
 
         # effect
         self.home = home.Effect(self)
+        self.record = record.Effect(self)
         self.player = player.Effect(self)
         # -------------------------
 
@@ -58,6 +59,7 @@ if __name__ == "__main__":
             main.Musics.judge()
             main.home.loop()
             main.player.loop()
+            main.record.loop()
             time.sleep(0.02)
         except:
             1 / 0
