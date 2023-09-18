@@ -5,91 +5,95 @@ from Tkinter_template.Assets.soundeffect import play_sound
 import time
 
 
-# class Effect:
-#     def __init__(self, app) -> None:
-#         self.app = app
-#         self.c = self.app.canvas
-#         self.cs = self.app.canvas_side
+class Effect:
+    def __init__(self, app) -> None:
+        self.app = app
+        self.c = self.app.canvas
+        self.cs = self.app.canvas_side
 
+    def start(self):
+        self.__player_enter = None
+        self.__player_state = 0
 
-# def select_player(self):
-#      self.__player_enter = None
-#       self.__player_state = 0
+        def enter(r, c, limit):
+            self.__player_enter = (r, c)
+            self.__limit = limit
 
-#        def enter(r, c, limit):
-#             self.__player_enter = (r, c)
-#             self.__limit = limit
+        def leave(r, c):
+            self.__player_enter = None
+            self.__player_state = 0
+            if self.c.coords(f"player-person{r}_{c}_0")[1] <= self.__limit - 1:
+                for i in range(4):
+                    self.c.move(
+                        f"player-person{r}_{c}_{i}", 0, 30)
 
-#         def leave(r, c):
-#             self.__player_enter = None
-#             self.__player_state = 0
-#             if self.c.coords(f"player-person{r}_{c}_0")[1] <= self.__limit - 1:
-#                 for i in range(4):
-#                     self.c.move(
-#                         f"player-person{r}_{c}_{i}", 0, 30)
+        def press(r, c):
+            pass
+        color = {
+            "1p": "red",
+            "2p": "green",
+            "3p": "blue",
+            "4p": "gold",
+            "com": "black"
+        }
+        canvas_reduction(self.c, self.cs, self.app.Musics,
+                         "player.png", "player_select.mp3")
 
-#         def press(r, c):
-#             pass
-#         color = {
-#             "1p": "red",
-#             "2p": "green",
-#             "3p": "blue",
-#             "4p": "gold",
-#             "com": "black"
-#         }
-#         canvas_reduction(self.c, self.cs, self.app.Musics,
-#                          "player.png", "player_select.mp3")
+        w, h = self.cs
+        interval = 15
+        padding = 25
+        for row in range(2):
+            for column in range(2):
+                p = row*2 + column+1
+                self.c.create_image(w/4 * (2*column+1), h/4 * (2*row+1),
+                                    image=tk_image("frame.png", int(
+                                        w/2-30), int(h/2-30), dirpath="images\\system"),
+                                    tags=("player", f"player-frame{row}_{column}"))
+                for person in range(4):
+                    base_w = w/4 * (2*column+1) - int(w/2-30) / 2
+                    base_h = h/4 * (2*row+1) + int(h/2-30) / 2
+                    span = int((int(w/2-30) - 3 * interval - 2 * padding) / 4)
+                    self.c.create_image(base_w+padding+(span+interval)*person, base_h-5, anchor="sw",
+                                        image=tk_image("person.png", span, int(
+                                            (h/2-30)/2), dirpath="images\\system"),
+                                        tags=(
+                                            "player", f"player-person{row}_{column}_{person}")
+                                        )
+                    text = f"{person+1}p" if person+1 <= p else "com"
+                    self.c.create_text(
+                        base_w+padding+(span+interval)*person+span/2, base_h-5-int(
+                            (h/2-30)/8), anchor="s", text=text, font=font_get(
+                                font_span("com", int(span/3), upper_bound=int(
+                                    (h/2-30)/8))
+                        ), fill=color[text], tags=("player", f"player-person{row}_{column}_{person}"))
+                self.c.create_text(w/4 * (2*column+1), h /
+                                   4 * (2*row+1) - int(h/2-30) / 4,
+                                   text=f"{p} " +
+                                   ("Player" if p == 1 else "Players"),
+                                   font=font_get(self.__font_size), fill="#ff6b87")
+                self.c.tag_bind(
+                    f"player-frame{row}_{column}", "<Enter>", lambda e, r=row, c=column,
+                    limit=base_h-5: enter(r, c, limit))
+                self.c.tag_bind(
+                    f"player-frame{row}_{column}", "<Leave>", lambda e, r=row, c=column: leave(r, c))
+                self.c.tag_bind(
+                    f"player-frame{row}_{column}", "<Button-1>", lambda e, r=row, c=column: press(r, c))
 
-#         w, h = self.cs
-#         interval = 15
-#         padding = 25
-#         for row in range(2):
-#             for column in range(2):
-#                 p = row*2 + column+1
-#                 self.c.create_image(w/4 * (2*column+1), h/4 * (2*row+1),
-#                                     image=tk_image("frame.png", int(
-#                                         w/2-30), int(h/2-30), dirpath="images\\system"),
-#                                     tags=("player", f"player-frame{row}_{column}"))
-#                 for person in range(4):
-#                     base_w = w/4 * (2*column+1) - int(w/2-30) / 2
-#                     base_h = h/4 * (2*row+1) + int(h/2-30) / 2
-#                     span = int((int(w/2-30) - 3 * interval - 2 * padding) / 4)
-#                     self.c.create_image(base_w+padding+(span+interval)*person, base_h-5, anchor="sw",
-#                                         image=tk_image("person.png", span, int(
-#                                             (h/2-30)/2), dirpath="images\\system"),
-#                                         tags=(
-#                                             "player", f"player-person{row}_{column}_{person}")
-#                                         )
-#                     text = f"{person+1}p" if person+1 <= p else "com"
-#                     self.c.create_text(
-#                         base_w+padding+(span+interval)*person+span/2, base_h-5-int(
-#                             (h/2-30)/8), anchor="s", text=text, font=font_get(
-#                                 font_span("com", int(span/3), upper_bound=int(
-#                                     (h/2-30)/8))
-#                         ), fill=color[text], tags=("player", f"player-person{row}_{column}_{person}"))
-#                 self.c.create_text(w/4 * (2*column+1), h /
-#                                    4 * (2*row+1) - int(h/2-30) / 4,
-#                                    text=f"{p} " +
-#                                    ("Player" if p == 1 else "Players"),
-#                                    font=font_get(self.__font_size), fill="#ff6b87")
-#                 self.c.tag_bind(
-#                     f"player-frame{row}_{column}", "<Enter>", lambda e, r=row, c=column,
-#                     limit=base_h-5: enter(r, c, limit))
-#                 self.c.tag_bind(
-#                     f"player-frame{row}_{column}", "<Leave>", lambda e, r=row, c=column: leave(r, c))
-#                 self.c.tag_bind(
-#                     f"player-frame{row}_{column}", "<Button-1>", lambda e, r=row, c=column: press(r, c))
+        self.player_timer = time.time()
 
-#         self.player_timer = time.time()
-# def player_loop(self):
-#         if not self.c.find_withtag("player"):
-#             return
-#         if (t := time.time()) - self.player_timer >= 0.4:
+    def end(self):
+        pass
 
-#             if (s := self.__player_enter) is not None:
-#                 for i in range(4):
-#                     self.c.move(f"player-person{s[0]}_{s[1]}_{i}",
-#                                 0, 30 if self.__player_state else -30)
-#                 self.__player_state = int(not self.__player_state)
+    def loop(self):
+        if not self.c.find_withtag("player"):
+            return
+        print(self.player_timer)
+        if (t := time.time()) - self.player_timer >= 0.4:
 
-#             self.player_timer = t
+            if (s := self.__player_enter) is not None:
+                for i in range(4):
+                    self.c.move(f"player-person{s[0]}_{s[1]}_{i}",
+                                0, 30 if self.__player_state else -30)
+                self.__player_state = int(not self.__player_state)
+
+            self.player_timer = t

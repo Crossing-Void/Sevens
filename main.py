@@ -1,10 +1,10 @@
 from Tkinter_template.Assets.project_management import create_menu
-from Tkinter_template.base import Interface
 from Tkinter_template.Assets.image import tk_image
 from Tkinter_template.Assets.font import font_get
 from Tkinter_template.Assets.music import Music
-from modules.effect import *
+from Tkinter_template.base import Interface
 from modules import initialize
+from modules.effect import *
 from modules import *
 import time
 
@@ -35,11 +35,12 @@ class Main(Interface):
 
         # effect
         self.home = home.Effect(self)
+        self.player = player.Effect(self)
         # -------------------------
 
         self.__buile_menu()
 
-        # main start
+        # home start
         self.home.start()
 
     def __buile_menu(self):
@@ -56,6 +57,7 @@ if __name__ == "__main__":
             main.canvas.update()
             main.Musics.judge()
             main.home.loop()
+            main.player.loop()
             time.sleep(0.02)
         except:
             1 / 0

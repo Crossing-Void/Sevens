@@ -21,18 +21,18 @@ class Effect:
         def enter(e):
             self.__enter_in_text = True
             play_sound("effect/enter")
-            self.c.itemconfig("main-effect-start", fill="gold")
+            self.c.itemconfig("home-effect-start", fill="gold")
 
         def leave(e):
             self.__enter_in_text = False
-            self.c.itemconfig("main-effect-start", fill="black")
+            self.c.itemconfig("home-effect-start", fill="black")
 
         def press(e):
             play_sound("effect/press")
             self.end()
 
         canvas_reduction(self.c, self.cs, self.app.Musics,
-                         "main.png", "main.mp3")
+                         "home.png", "home.mp3")
         # animate
         args = {
             "Clubs": (180, 179),
@@ -42,15 +42,15 @@ class Effect:
         }
         count = 0
         img = tk_image(
-            f"Seven of Clubs 180.png",  dirpath="images\\effect\\main", get_object_only=True)
+            f"Seven of Clubs 180.png",  dirpath="images\\effect\\home", get_object_only=True)
         revise = img.width
         for key, value in args.items():
             for angle in range(*value, -1):
-                self.c.delete(f"main-effect-{key}")
+                self.c.delete(f"home-effect-{key}")
                 self.c.create_image(self.cs[0]//2 + revise/4 * (count-1.5), self.cs[1]//2,
                                     image=tk_image(
-                                    f"Seven of {key} {angle}.png",  dirpath="images\\effect\\main"),
-                                    tags=("main-effect", f"main-effect-{key}"))
+                                    f"Seven of {key} {angle}.png",  dirpath="images\\effect\\home"),
+                                    tags=("home-effect", f"home-effect-{key}"))
                 self.c.update()
                 time.sleep(0.04)
             time.sleep(0.2)
@@ -60,35 +60,35 @@ class Effect:
         self.c.create_image(self.cs[0]//2, self.cs[1]//6,
                             image=tk_image(
             f"logo.png",  height=int(self.cs[1]/3), dirpath="images\\effect\\title"),
-            tags=("main-effect", "main-effect-title"))
+            tags=("home-effect", "home-effect-title"))
 
         # press to start
         self.__font_size = 72
         self.c.create_text(self.cs[0]//2, self.cs[1]//6 * 5,
                            text="Press To Start", font=font_get(72),
-                           tags=("main-effect", "main-effect-start"))
+                           tags=("home-effect", "home-effect-start"))
         self.c.create_image(self.cs[0]//2 - measure("Press To Start", self.__font_size) // 2 - 30, self.cs[1]//6 * 5,
                             anchor="e",
                             image=tk_image(
             f"play.png",  height=self.__font_size, dirpath="images\\system"),
-            tags=("main-effect", "main-effect-startimage1"))
+            tags=("home-effect", "home-effect-startimage1"))
         self.c.create_image(self.cs[0]//2 + measure("Press To Start", self.__font_size) // 2 + 30, self.cs[1]//6 * 5,
                             anchor="w",
                             image=tk_image(
             f"play_left.png",  height=self.__font_size, dirpath="images\\system"),
-            tags=("main-effect", "main-effect-startimage2"))
+            tags=("home-effect", "home-effect-startimage2"))
 
-        self.c.tag_bind("main-effect-start", "<Enter>", enter)
-        self.c.tag_bind("main-effect-start", "<Leave>", leave)
-        self.c.tag_bind("main-effect-start", "<Button-1>", press)
+        self.c.tag_bind("home-effect-start", "<Enter>", enter)
+        self.c.tag_bind("home-effect-start", "<Leave>", leave)
+        self.c.tag_bind("home-effect-start", "<Button-1>", press)
 
-        self.main_start_timer = time.time()
-        self.main_start_timer2 = time.time()
+        self.home_start_timer = time.time()
+        self.home_start_timer2 = time.time()
 
     def end(self):
-        self.c.delete("main-effect-start")
-        self.c.delete("main-effect-startimage1")
-        self.c.delete("main-effect-startimage2")
+        self.c.delete("home-effect-start")
+        self.c.delete("home-effect-startimage1")
+        self.c.delete("home-effect-startimage2")
         # animate
         args = {
             "Spades": (135, 150),
@@ -98,55 +98,58 @@ class Effect:
         }
         count = 3
         img = tk_image(
-            f"Seven of Clubs 180.png",  dirpath="images\\effect\\main", get_object_only=True)
+            f"Seven of Clubs 180.png",  dirpath="images\\effect\\home", get_object_only=True)
         revise = img.width
         for key, value in args.items():
             if key == "Clubs":
-                self.c.delete(f"main-effect-{key}")
+                self.c.delete(f"home-effect-{key}")
                 self.c.update()
                 time.sleep(0.1)
                 continue
             for angle in range(*value):
-                self.c.delete(f"main-effect-{key}")
+                self.c.delete(f"home-effect-{key}")
                 self.c.create_image(self.cs[0]//2 + revise/4 * (count-1.5), self.cs[1]//2,
                                     image=tk_image(
-                                    f"Seven of {key} {angle}.png",  dirpath="images\\effect\\main"),
-                                    tags=("main-effect", f"main-effect-{key}"))
+                                    f"Seven of {key} {angle}.png",  dirpath="images\\effect\\home"),
+                                    tags=("home-effect", f"home-effect-{key}"))
                 self.c.update()
                 time.sleep(0.01)
-            self.c.move(f"main-effect-{key}", -revise/4, 0)
+            self.c.move(f"home-effect-{key}", -revise/4, 0)
             self.c.update()
             time.sleep(0.1)
             count -= 1
-            self.c.delete(f"main-effect-{key}")
+            self.c.delete(f"home-effect-{key}")
 
         # title
         for i in range(10):
-            self.c.delete("main-effect-title")
+            self.c.delete("home-effect-title")
             self.c.create_image(self.cs[0]//2, self.cs[1]//6,
                                 image=tk_image(
                 f"logo.png",  height=int(self.cs[1]/(3-i*0.2)), dirpath="images\\effect\\title"),
-                tags=("main-effect", "main-effect-title"))
+                tags=("home-effect", "home-effect-title"))
             self.c.update()
             time.sleep(0.01)
-        self.select_player()
+        
+        # to select player
+        self.app.player.start()
+
 
     def loop(self):
-        if not self.c.find_withtag("main-effect-start"):
+        if not self.c.find_withtag("home-effect-start"):
             return
-        if (t := time.time()) - self.main_start_timer >= 0.8:
-            if not self.__enter:
+        if (t := time.time()) - self.home_start_timer >= 0.8:
+            if not self.__enter_in_text:
                 fill = "#ff6b87" if self.c.itemcget(
-                    "main-effect-start", "fill") == "black" else "black"
-                self.c.itemconfig("main-effect-start", fill=fill)
-                self.main_start_timer = t
-        if (t := time.time()) - self.main_start_timer2 >= 0.2:
-            if self.c.coords("main-effect-startimage1")[0] >= self.cs[0]//2 - measure("Press To Start", self.__font_size) // 2 - 31:
-                self.c.move("main-effect-startimage1", -30, 0)
+                    "home-effect-start", "fill") == "black" else "black"
+                self.c.itemconfig("home-effect-start", fill=fill)
+                self.home_start_timer = t
+        if (t := time.time()) - self.home_start_timer2 >= 0.2:
+            if self.c.coords("home-effect-startimage1")[0] >= self.cs[0]//2 - measure("Press To Start", self.__font_size) // 2 - 31:
+                self.c.move("home-effect-startimage1", -30, 0)
             else:
-                self.c.move("main-effect-startimage1", 30, 0)
-            if self.c.coords("main-effect-startimage2")[0] <= self.cs[0]//2 + measure("Press To Start", self.__font_size) // 2 + 31:
-                self.c.move("main-effect-startimage2", 30, 0)
+                self.c.move("home-effect-startimage1", 30, 0)
+            if self.c.coords("home-effect-startimage2")[0] <= self.cs[0]//2 + measure("Press To Start", self.__font_size) // 2 + 31:
+                self.c.move("home-effect-startimage2", 30, 0)
             else:
-                self.c.move("main-effect-startimage2", -30, 0)
-            self.main_start_timer2 = t
+                self.c.move("home-effect-startimage2", -30, 0)
+            self.home_start_timer2 = t

@@ -5,12 +5,12 @@ path = "images\\effect"
 
 
 def check_path():
-    if not os.path.exists(os.path.join(path, "main")):
-        os.mkdir(os.path.join(path, "main"))
+    if not os.path.exists(os.path.join(path, "home")):
+        os.mkdir(os.path.join(path, "home"))
 
 
 def check_files(height: int):
-    if len(os.listdir(os.path.join(path, "main"))) < 46:
+    if len(os.listdir(os.path.join(path, "home"))) < 46:
         _generate_image(height)
 
 
@@ -32,7 +32,7 @@ def _generate_image(height):
         for angle in range(*value, -1):
             img = Image.open(f"images\\cards\\temp Seven of {key}.png")
             img = img.rotate(angle, expand=True)
-            img.save(os.path.join(path, "main", f"Seven of {key} {angle}.png"))
+            img.save(os.path.join(path, "home", f"Seven of {key} {angle}.png"))
 
     for key in args:
         os.remove(f"images\\cards\\temp Seven of {key}.png")
