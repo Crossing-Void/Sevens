@@ -20,7 +20,7 @@ class Effect:
 
         def enter(e):
             self.__enter_in_text = True
-            play_sound("effect/enter")
+            play_sound("home/enter")
             self.c.itemconfig("home-effect-start", fill="gold")
 
         def leave(e):
@@ -28,7 +28,7 @@ class Effect:
             self.c.itemconfig("home-effect-start", fill="black")
 
         def press(e):
-            play_sound("effect/press")
+            play_sound("home/press")
             self.end()
 
         canvas_reduction(self.c, self.cs, self.app.Musics,
@@ -65,7 +65,7 @@ class Effect:
         # press to start
         self.__font_size = 72
         self.c.create_text(self.cs[0]//2, self.cs[1]//6 * 5,
-                           text="Press To Start", font=font_get(72),
+                           text="Press To Start", font=font_get(self.__font_size),
                            tags=("home-effect", "home-effect-start"))
         self.c.create_image(self.cs[0]//2 - measure("Press To Start", self.__font_size) // 2 - 30, self.cs[1]//6 * 5,
                             anchor="e",
@@ -82,8 +82,8 @@ class Effect:
         self.c.tag_bind("home-effect-start", "<Leave>", leave)
         self.c.tag_bind("home-effect-start", "<Button-1>", press)
 
-        self.home_start_timer = time.time()
-        self.home_start_timer2 = time.time()
+        self.home_timer = time.time()
+        self.home_timer2 = time.time()
 
     def end(self):
         self.c.delete("home-effect-start")
@@ -129,21 +129,20 @@ class Effect:
                 tags=("home-effect", "home-effect-title"))
             self.c.update()
             time.sleep(0.01)
-        
+
         # to select player
         self.app.player.start()
-
 
     def loop(self):
         if not self.c.find_withtag("home-effect-start"):
             return
-        if (t := time.time()) - self.home_start_timer >= 0.8:
+        if (t := time.time()) - self.home_timer >= 0.8:
             if not self.__enter_in_text:
                 fill = "#ff6b87" if self.c.itemcget(
                     "home-effect-start", "fill") == "black" else "black"
                 self.c.itemconfig("home-effect-start", fill=fill)
-                self.home_start_timer = t
-        if (t := time.time()) - self.home_start_timer2 >= 0.2:
+                self.home_timer = t
+        if (t := time.time()) - self.home_timer2 >= 0.2:
             if self.c.coords("home-effect-startimage1")[0] >= self.cs[0]//2 - measure("Press To Start", self.__font_size) // 2 - 31:
                 self.c.move("home-effect-startimage1", -30, 0)
             else:
@@ -152,4 +151,4 @@ class Effect:
                 self.c.move("home-effect-startimage2", 30, 0)
             else:
                 self.c.move("home-effect-startimage2", -30, 0)
-            self.home_start_timer2 = t
+            self.home_timer2 = t

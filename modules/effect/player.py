@@ -37,7 +37,7 @@ class Effect:
             "com": "black"
         }
         canvas_reduction(self.c, self.cs, self.app.Musics,
-                         "player.png", "player_select.mp3")
+                         "player.png", "player.mp3")
 
         w, h = self.cs
         interval = 15
@@ -87,7 +87,7 @@ class Effect:
     def loop(self):
         if not self.c.find_withtag("player"):
             return
-        print(self.player_timer)
+        
         if (t := time.time()) - self.player_timer >= 0.4:
 
             if (s := self.__player_enter) is not None:

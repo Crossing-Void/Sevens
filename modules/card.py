@@ -47,7 +47,7 @@ class Card:
     def __init__(self, app) -> None:
         self.app = app
 
-    def card_name_get_obj(self, suit: int, rank: int):
+    def card_name_new_obj(self, suit: int, rank: int):
         card = _card(_suit(suit).name,
                      _rank(rank).name
                      )
