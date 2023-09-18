@@ -1,20 +1,9 @@
 """
 Cards management of poker game
 """
-from enum import Enum, auto, unique
-from dataclasses import dataclass, field
 from Tkinter_template.Assets.image import tk_image
-
-
-class Card:
-    def __init__(self, app) -> None:
-        self.app = app
-
-    def card_name_to_image(self, suit: int, rank: int, size: tuple):
-        card = _card(_suit(suit).name,
-                     _rank(rank).name)
-
-        return tk_image(str(card) + ".png", *size, dirpath="images\\cards")
+from dataclasses import dataclass
+from enum import Enum, unique
 
 
 @unique
@@ -52,3 +41,23 @@ class _card:
 
     def __str__(self):
         return f"{self.rank} of {self.suit}"
+
+
+class Card:
+    def __init__(self, app) -> None:
+        self.app = app
+
+    def card_name_get_obj(self, suit: int, rank: int):
+        card = _card(_suit(suit).name,
+                     _rank(rank).name
+                     )
+        return card
+
+    def card_name_to_image(self, suit: int, rank: int, size: tuple):
+        card = _card(_suit(suit).name,
+                     _rank(rank).name
+                     )
+        return tk_image(str(card) + ".png", *size, dirpath="images\\cards")
+
+    def card_obj_to_image(self, object: _card, size: tuple):
+        return tk_image(str(object) + ".png", *size, dirpath="images\\cards")
