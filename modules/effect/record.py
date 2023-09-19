@@ -100,6 +100,7 @@ class Effect:
 
     def end(self, i):
         mode = i
+        self.app.mode = i
         # delete not select
         time.sleep(0.5)
         self.c.delete(f"record-whole1")

@@ -87,6 +87,7 @@ class Effect:
     def end(self, r, c):
         # delete not select
         player_number = r*2 + c+1
+        self.app.player_number = player_number
         for row in range(2):
             for column in range(2):
                 if (r == row) and (c == column):
@@ -94,6 +95,8 @@ class Effect:
                 self.c.delete(f"player-whole{row}_{column}")
                 self.c.update()
                 time.sleep(0.5)
+        # to game
+        self.app.controler.initialize()
 
     def loop(self):
         if not self.c.find_withtag("player"):

@@ -59,7 +59,7 @@ class Effect:
         # title
         self.c.create_image(self.cs[0]//2, self.cs[1]//6,
                             image=tk_image(
-            f"logo.png",  height=int(self.cs[1]/3), dirpath="images\\effect\\text"),
+            f"logo.png",  height=int(self.cs[1]/4), dirpath="images\\effect\\text"),
             tags=("home-effect", "home-effect-title"))
 
         # press to start
