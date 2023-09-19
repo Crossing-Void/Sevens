@@ -14,13 +14,13 @@ class Control:
 
         self.players = []
 
-        self.Chip = chips.Chip()
+        # self.Chip = chips.Chip()
 
     def initialize(self):
         # select all mode
         self.record_mode = self.app.mode
         self.player_number = self.app.player_number
-        self.game_mode = self.app.  # tuple("bankrupt", 500)
+        # self.game_mode = self.app.  # tuple("bankrupt", 500)
 
         canvas_reduction(self.c, self.cs, self.app.Musics,
                          "background.png", "setup.mp3")

@@ -1,1 +1,1 @@
-__all__ = ["card", "soundeffect"]
+__all__ = ["controler", "soundeffect"]

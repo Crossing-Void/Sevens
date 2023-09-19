@@ -5,7 +5,6 @@ from Tkinter_template.Assets.music import Music
 from Tkinter_template.base import Interface
 from modules import initialize
 from modules.effect import *
-from modules.game import controler
 from modules import *
 import time
 
@@ -30,17 +29,17 @@ class Main(Interface):
 
         # -------------------------
         self.Musics = Music()
-        self.Cards = card.Card(self)
         self.Soundeffects = soundeffect.Soundeffect(self)
 
         # effect
         self.home = home.Effect(self)
         self.record = record.Effect(self)
         self.player = player.Effect(self)
+        self.player_mode = play_mode.Effect(self)
 
         # game
         self.controler = controler.Control(self)
-        
+
         # -------------------------
 
         self.__buile_menu()

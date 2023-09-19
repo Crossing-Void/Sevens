@@ -95,8 +95,8 @@ class Effect:
                 self.c.delete(f"player-whole{row}_{column}")
                 self.c.update()
                 time.sleep(0.5)
-        # to game
-        self.app.controler.initialize()
+        # to select mode
+        self.app.player_mode.start()
 
     def loop(self):
         if not self.c.find_withtag("player"):
