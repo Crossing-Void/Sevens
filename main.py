@@ -63,6 +63,7 @@ if __name__ == "__main__":
             main.home.loop()
             main.player.loop()
             main.record.loop()
+            main.player_mode.loop()
             time.sleep(0.02)
         except:
             1 / 0

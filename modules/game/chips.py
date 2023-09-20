@@ -73,6 +73,6 @@ class Chip:
                 if angle == "ne":
                     h += (self.chip_size * 1.2) * count
 
-                self.c.create_image(w, h, image=_chip(value).draw((self.chip_size, self.chip_size), self.corr[angle]), anchor="se"
-                                    )
+                self.c.create_image(w, h, image=_chip(value).draw((self.chip_size, self.chip_size), self.corr[angle]), anchor="se",
+                                    tags=("chip"))
             count += 1
