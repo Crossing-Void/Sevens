@@ -76,3 +76,10 @@ class Chip:
                 self.c.create_image(w, h, image=_chip(value).draw((self.chip_size, self.chip_size), self.corr[angle]), anchor="se",
                                     tags=("chip"))
             count += 1
+
+    def draw_chip(self, money: int, position: tuple, size: tuple, **kwargs):
+        if money not in _chip_value:
+            raise ValueError(f"{money} not supported")
+
+        self.c.create_image(position[0], position[1], image=_chip(
+            money).draw(size, "bottom"), **kwargs)

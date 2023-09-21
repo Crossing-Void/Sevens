@@ -203,10 +203,12 @@ class Effect:
             x += 30
             y += 28 * 4 / 3 * 2.5
             for num, value in enumerate((1, 10, 50, 200)):
-                self.c.create_image(x + padding+(height+interval)*(num % 2), y + padding+(height+interval)*(num//2),
-                                    image=tk_image(
-                                        f"{value}-bottom.png", height=height, dirpath="images\\game\\chips"),
-                                    tags=("player-mode", f"player-mode-hidden-bankruptcy-chip{value}", "player_mode-frame"), anchor='nw')
+                self.chips.draw_chip(value, (
+                    x + padding+(height+interval)*(num % 2), y +
+                    padding+(height+interval)*(num//2)
+                ), (height, height), anchor="nw", tags=("player-mode", f"player-mode-hidden-bankruptcy-chip{value}", "player_mode-frame")
+                )
+
                 self.c.tag_bind(
                     f"player-mode-hidden-bankruptcy-chip{value}", "<Button-1>", lambda e, v=value: add_chips(v))
                 self.c.tag_bind(
