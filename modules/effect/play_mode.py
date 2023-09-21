@@ -30,33 +30,38 @@ class Effect:
                 self.c.itemconfig(
                     f"player-mode-image1-hidden{point}", state="hidden")
 
-    def __switch_ok(self, state: int):
+    def __switch_ok(self, state: int, mode: str):
         # 0 is on
+
         w = self.cs[0]
+        on = f"player-mode-hidden-{mode}-ok-on"
+        off = f"player-mode-hidden-{mode}-ok-off"
+        ok = f"player-mode-hidden-{mode}-ok-deco"
+
         if state:
             self.c.itemconfig(
-                "player-mode-hidden-bankruptcy-ok-on", state="normal")
+                on, state="normal")
             self.c.itemconfig(
-                "player-mode-hidden-bankruptcy-ok-off", state="hidden")
-            self.c.move("player-mode-hidden-bankruptcy-ok-deco", 40, 0)
+                off, state="hidden")
+            self.c.move(ok, 40, 0)
         else:
             self.c.itemconfig(
-                "player-mode-hidden-bankruptcy-ok-on", state="hidden")
+                on, state="hidden")
             self.c.itemconfig(
-                "player-mode-hidden-bankruptcy-ok-off", state="normal")
-            if self.c.coords("player-mode-hidden-bankruptcy-ok-deco")[0] > w/2 + int(w-30) / 2 - 140 - 2:
-                self.c.move("player-mode-hidden-bankruptcy-ok-deco", -40, 0)
+                off, state="normal")
+            if self.c.coords(ok)[0] > w/2 + int(w-30) / 2 - 140 - 2:
+                self.c.move(ok, -40, 0)
 
     def __show_frame(self, i):
         self.c.delete("player_mode-frame")
 
         def add_chips(value):
-            print(value)
+
             play_sound("player_mode/up")
             self.__bankruptcy_money += value
             if self.__bankruptcy_money > 2000:
                 self.__bankruptcy_money = 2000
-            self.__valid = True
+            self.__backruptcy_valid = True
             show()
             self.c.delete("chip")
             self.chips.show_chips(self.__bankruptcy_money, (
@@ -71,9 +76,9 @@ class Effect:
             if self.__bankruptcy_money < 0:
                 self.__bankruptcy_money = 0
             if self.__bankruptcy_money == 0:
-                self.__valid = False
+                self.__backruptcy_valid = False
                 self.__ok_state = 0
-                self.__switch_ok(self.__ok_state)
+                self.__switch_ok(self.__ok_state, "bankruptcy")
             show()
             self.c.delete("chip")
             self.chips.show_chips(self.__bankruptcy_money, (
@@ -94,8 +99,29 @@ class Effect:
                                fill="gold", font=font_get(int(height*3/8)), anchor="nw",
                                tag=("player-mode", f"player-mode-hidden-bankruptcy-money", "player_mode-frame"))
 
-        def select_round(num, round):
-            play_sound("player_mode/click_number")
+        def show2():
+            self.c.delete(f"player-mode-hidden-round-round")
+            self.c.delete(f"player-mode-hidden-round-money")
+            self.c.create_text(w/2 + int(w-30)/2 - 50 - measure("Money: 1000", int(height*3/8)), y + padding, text=f"Round: {str(self.__round_round):^4s}",
+                               fill="gold", font=font_get(int(height*3/8)), anchor="nw",
+                               tag=("player-mode", f"player-mode-hidden-round-round", "player_mode-frame"))
+
+            self.c.create_text(w/2 + int(w-30)/2 - 50 - measure("Money: 1000", int(height*3/8)),
+                               y + padding+(height+interval), text=f"Money: {self.__round_money:^3d}",
+                               fill="gold", font=font_get(int(height*3/8)), anchor="nw",
+                               tag=("player-mode", f"player-mode-hidden-round-money", "player_mode-frame"))
+
+        def select_round(num, round, sound=True):
+            if sound:
+                play_sound("player_mode/click_number")
+
+            corr = {
+                3: 100,
+                5: 200,
+                10: 500,
+                15: 750
+            }
+
             for i in range(4):
                 if i == num:
                     self.c.itemconfig(
@@ -107,6 +133,11 @@ class Effect:
                         f"player-mode-hidden-round-number{i}-normal", state="normal")
                     self.c.itemconfig(
                         f"player-mode-hidden-round-number{i}-hidden", state="hidden")
+
+            self.__round_round = round
+            self.__round_money = corr[round]
+            self.__round_valid = True
+            show2()
 
         if not self.c.find_withtag("player-mode-hidden-rectangle"):
             w, h = self.cs
@@ -149,6 +180,16 @@ class Effect:
                                 image=tk_image(
                 f"play.png", height=60, dirpath="images\\system"),
                 tags=("player-mode", f"player-mode-hidden-round-ok-deco", "player_mode-frame"), anchor='se')
+            self.c.tag_bind("player-mode-hidden-round-ok-off",
+                            "<Button-1>", lambda e: self.end("round"))
+            self.c.tag_bind("player-mode-hidden-round-ok-on",
+                            "<Button-1>", lambda e: self.end("round"))
+            show2()
+            try:
+                select_round((3, 5, 10, 15).index(
+                    self.__round_round), self.__round_round, sound=False)
+            except:
+                pass
 
         else:
             self.c.create_text(w/2, h / 4 * 3 - int(h/2-20) / 2 + 10, text="Select Start Money\n(Left Click For Adding and Right For Removing)",
@@ -185,6 +226,11 @@ class Effect:
                 f"play.png", height=60, dirpath="images\\system"),
                 tags=("player-mode", f"player-mode-hidden-bankruptcy-ok-deco", "player_mode-frame"), anchor='se')
 
+            self.c.tag_bind("player-mode-hidden-bankruptcy-ok-off",
+                            "<Button-1>", lambda e: self.end("bankruptcy"))
+            self.c.tag_bind("player-mode-hidden-bankruptcy-ok-on",
+                            "<Button-1>", lambda e: self.end("bankruptcy"))
+
             self.c.delete("chip")
             self.chips.show_chips(self.__bankruptcy_money, (
                 w/2 + int(w-30)/2 - 100 -
@@ -198,7 +244,10 @@ class Effect:
 
         self.__bankruptcy_money = 0
         self.__bankruptcy_round = "∞"
-        self.__valid = False
+        self.__round_money = 0
+        self.__round_round = "None"
+        self.__backruptcy_valid = False
+        self.__round_valid = False
         self.__ok_state = 0
 
         def enter(i):
@@ -275,24 +324,17 @@ class Effect:
                             "<Button-1>", lambda e, i=i: press(i))
         self.player_mode_timer = time.time()
 
-    def end(self, i):
-        pass
-    #     mode = i
-    #     self.app.mode = i
-    #     # delete not select
-    #     time.sleep(0.5)
-    #     self.c.delete(f"player-mode-whole1")
-    #     self.c.update()
-    #     time.sleep(0.5)
-
-    #     if mode == 0:
-    #         # new
-    #         # to game
-    #     self.app.controler.initialize()
-    #         self.app.player.start()
-    #     else:
-    #         # player-mode
-    #         pass
+    def end(self, mode: str):
+        play_sound("player_mode/press_frame")
+        if mode == "bankruptcy":
+            if self.__backruptcy_valid:
+                self.app.game_mode = (
+                    self.__bankruptcy_round, self.__bankruptcy_money)
+                self.app.controler.initialize()
+        elif mode == "round":
+            if self.__round_valid:
+                self.app.game_mode = (self.__round_round, self.__round_money)
+                self.app.controler.initialize()
 
     def loop(self):
         if not self.c.find_withtag("player-mode"):
@@ -303,12 +345,17 @@ class Effect:
                     self.__player_mode_state = int(
                         not self.__player_mode_state)
                     self.__switch_image(self.__player_mode_state)
+
                 else:
                     if self.__player_mode_state == 6:
                         self.__player_mode_state = 0
                     self.__player_mode_state += 1
                     self.__switch_dice(self.__player_mode_state)
-            if self.__valid and self.c.find_withtag("player-mode-hidden-bankruptcy-ok-deco"):
+
+            if self.__backruptcy_valid and self.c.find_withtag("player-mode-hidden-bankruptcy-ok-deco"):
                 self.__ok_state = int(not self.__ok_state)
-                self.__switch_ok(self.__ok_state)
+                self.__switch_ok(self.__ok_state, "bankruptcy")
+            if self.__round_valid and self.c.find_withtag("player-mode-hidden-round-ok-deco"):
+                self.__ok_state = int(not self.__ok_state)
+                self.__switch_ok(self.__ok_state, "round")
             self.player_mode_timer = t

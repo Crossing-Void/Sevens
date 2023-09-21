@@ -50,13 +50,7 @@ class Effect:
         def press(i):
             play_sound("record/press_frame")
             self.end(i)
-        # color = {
-        #     "1p": "red",
-        #     "2p": "green",
-        #     "3p": "blue",
-        #     "4p": "gold",
-        #     "com": "black"
-        # }
+
         canvas_reduction(self.c, self.cs, self.app.Musics,
                          "record.png", "record.mp3")
 
