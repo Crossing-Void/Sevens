@@ -157,14 +157,25 @@ class Effect:
             x += 30
             y += 28 * 4 / 3 * 2.5
             for num, value in enumerate((3, 5, 10, 15)):
-                self.c.create_image(x + padding+(height+interval)*(num % 2)*1.5, y + padding+(height+interval)*(num//2),
-                                    image=tk_image(
-                                        f"{value}.png", height=height, dirpath="images\\effect\\icon\\numbers"),
-                                    tags=("player-mode", f"player-mode-hidden-round-number{num}-normal", "player_mode-frame"), anchor='nw')
-                self.c.create_image(x + padding+(height+interval)*(num % 2)*1.5, y + padding+(height+interval)*(num//2),
-                                    image=tk_image(
-                                        f"{value}_.png", height=height, dirpath="images\\effect\\icon\\numbers"), state="hidden",
-                                    tags=("player-mode", f"player-mode-hidden-round-number{num}-hidden", "player_mode-frame"), anchor='nw')
+                if len(str(value)) == 2:
+                    for n in range(len(str(value))):
+                        self.c.create_image(x + padding+(height+interval)*(num % 2)*1.5 + padding+(height+interval)*0.5*n, y + padding+(height+interval)*(num//2),
+                                            image=tk_image(
+                            f"{str(value)[n]}.png", height=height, dirpath="images\\effect\\icon\\numbers"),
+                            tags=("player-mode", f"player-mode-hidden-round-number{num}-normal", "player_mode-frame"), anchor='nw')
+                        self.c.create_image(x + padding+(height+interval)*(num % 2)*1.5 + padding+(height+interval)*0.5*n, y + padding+(height+interval)*(num//2),
+                                            image=tk_image(
+                            f"{str(value)[n]}_.png", height=height, dirpath="images\\effect\\icon\\numbers"), state="hidden",
+                            tags=("player-mode", f"player-mode-hidden-round-number{num}-hidden", "player_mode-frame"), anchor='nw')
+                else:
+                    self.c.create_image(x + padding+(height+interval)*(num % 2)*1.5, y + padding+(height+interval)*(num//2),
+                                        image=tk_image(
+                                            f"{value}.png", height=height, dirpath="images\\effect\\icon\\numbers"),
+                                        tags=("player-mode", f"player-mode-hidden-round-number{num}-normal", "player_mode-frame"), anchor='nw')
+                    self.c.create_image(x + padding+(height+interval)*(num % 2)*1.5, y + padding+(height+interval)*(num//2),
+                                        image=tk_image(
+                                            f"{value}_.png", height=height, dirpath="images\\effect\\icon\\numbers"), state="hidden",
+                                        tags=("player-mode", f"player-mode-hidden-round-number{num}-hidden", "player_mode-frame"), anchor='nw')
                 self.c.tag_bind(
                     f"player-mode-hidden-round-number{num}-normal", "<Button-1>", lambda e, v=num, v2=value: select_round(v, v2))
 

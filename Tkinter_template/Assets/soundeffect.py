@@ -40,3 +40,7 @@ _gather_soundeffects()
 
 def play_sound(filename):
     _soundeffects[filename].play()
+
+
+def stop():
+    pygame.mixer.stop()

@@ -50,10 +50,15 @@ class _card:
         else:
             self.front = state
 
+    def data_to_num(self):
+        return (eval(f"_suit.{self.suit}.value"),
+                eval(f"_rank.{self.rank}.value"))
+
 
 class Card:
     def __init__(self, app) -> None:
         self.app = app
+        self.c = self.app.canvas
 
     def card_name_new_obj(self, suit: int, rank: int, front=False):
         card = _card(_suit(suit).name,
@@ -61,20 +66,33 @@ class Card:
                      front)
         return card
 
-    def card_name_to_image(self, suit: int, rank: int, size: tuple):
+    def card_name_to_image(self, suit: int, rank: int, width, front=False):
         card = _card(_suit(suit).name,
-                     _rank(rank).name
-                     )
-        return tk_image(str(card) + ".png", *size, dirpath="images\\cards")
+                     _rank(rank).name,
+                     front)
+        return tk_image(str(card) + ".png", width, dirpath="images\\cards")
 
-    def card_obj_to_image(self, object: _card, size: tuple):
+    def card_obj_to_image(self, object: _card, width, rotate90=False):
         if object.front:
-            return tk_image(str(object) + ".png", *size, dirpath="images\\cards")
+            return tk_image(str(object) + ".png", width, dirpath="images\\cards")
         else:
-            return tk_image("back.png", *size, dirpath="images\\cards")
+            if rotate90:
+                return tk_image("back2.png", height=width, dirpath="images\\cards")
+            else:
+                return tk_image("back.png", width, dirpath="images\\cards")
 
     def create_a_deck(self, shuffle=True):
         cards = [(suit, rank) for suit in range(1, 5) for rank in range(1, 14)]
         if shuffle:
             random.shuffle(cards)
         return [_card(_suit(suit).name, _rank(rank).name, False) for suit, rank in cards]
+
+    # advanced method
+    def stack_deck(self, deck: list[_card], position: tuple, width, displacement=0):
+        overlapping_width = width / 200
+        for n in range(len(deck)-1, -1, -1):
+            self.c.create_image(position[0]+(n + displacement) * overlapping_width,
+                                position[1]+(n + displacement) *
+                                overlapping_width,
+                                image=self.card_obj_to_image(deck[n], width),
+                                tags=('deck-stack'))
