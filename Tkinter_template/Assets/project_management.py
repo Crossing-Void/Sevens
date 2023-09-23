@@ -8,8 +8,9 @@ mostly all function the project will use, is inside here
 
 '''
 from Tkinter_template.Assets.image import tk_image
-from Tkinter_template.Assets.font import font_get
+from Tkinter_template.Assets.font import font_get, font_span
 from tkinter import *
+import time
 import os
 
 
@@ -94,3 +95,125 @@ def canvas_reduction(canvas, canvas_side, music_obj=None, cover=None, music=None
     canvas.unbind('<Button-1>')
     canvas.unbind('<Double-Button-1>')
     canvas.unbind('<space>')
+
+
+def progress_bar(params, **args):
+    if t := (type(params)) != dict:
+        raise ValueError(f"The parameter params should be a dict, but got {t}")
+
+    default_params = {
+        'bg': '#FFF9A6',
+        'outline': ('black', 'green'),
+        'line width': 10,
+        'position': (0, 0)
+    }
+
+    valid_args = [
+        'total',  # int, set what number of part is
+        'new window',  # boolean, progress bar should exists in new window or not
+        'size',  # tuple, for all progress bar size(width, height)
+        'canvas',  # for canvas to pad on
+        'position',  # set progress bar to the position
+        'bg',  # set new window's canvas bg
+        'outline',  # tuple, (incomplete part, complete part)
+        'line width',  # for line width
+    ]
+    # if new window is True, also need to pass size, otherwise pass size, canvas, position
+    for key in params:
+        if key not in valid_args:
+            raise ValueError(f"Not a valid arguments: {key}")
+
+    default_params.update(params)
+
+    class ProgressBar:
+        def __init__(self, func) -> None:
+            self.func = func
+
+        def __depict_progress(self, position: tuple = (0, 0), proportion=0):
+            self.canvas.delete('progressbar')
+            w, h = self.params['size'][0], self.params['size'][1]
+            width_is_bigger = w >= h
+            try:
+                complete_ratio = proportion / self.params['total']
+            except:
+                complete_ratio = 0
+            line_width = self.params['line width']
+            out_line = self.params['outline']
+
+            if width_is_bigger:
+                point = (position[0] + int((w-h)/2),
+                         position[1] + line_width/2,
+                         position[0] + int((w-h)/2) + h,
+                         position[1] + h - line_width / 2)
+
+            else:
+                point = (position[0] + line_width / 2,
+                         position[1] + int((h-w)/2),
+                         position[0] + w - line_width / 2,
+                         position[1] + int((h-w)/2) + w)
+
+            crr = int(complete_ratio*360)
+            if crr == 360:
+                self.canvas.create_oval(*point, width=line_width, outline=out_line[1],
+                                        tags=('progressbar', 'progressbar-complete'))
+            else:
+                self.canvas.create_arc(*point, width=line_width, start=90-crr, extent=crr,
+                                       style='arc', outline=out_line[1],
+                                       tags=('progressbar', 'progressbar-complete'))
+            if crr == 0:
+                self.canvas.create_oval(*point, width=line_width, outline=out_line[0],
+                                        tags=('progressbar', 'progressbar-incomplete'))
+            else:
+                self.canvas.create_arc(*point,  width=line_width, start=90, extent=360-crr, style='arc',
+                                       outline=out_line[0],
+                                       tags=('progressbar', 'progressbar-incomplete'))
+            self.canvas.create_text(
+                position[0]+int(w/2), position[1]+int(h/2),
+                text=f'{round(complete_ratio*100, 1)}%', font=font_get(font_span('100.0%', h*0.9 if width_is_bigger else w*0.9)),
+                tags=('progressbar', 'progressbar-ratio'))
+
+            if hasattr(self, 'window'):
+                t = self.window.title
+                t(t()[:t().rfind("-")+1] + f' {round(complete_ratio*100, 1)}%')
+            self.canvas.update()
+
+        def __start(self):
+            bg = self.params['bg']
+
+            if self.params['new window']:
+                self.window = new_window(
+                    f"{self.func.__name__} -- Start", maxsize=self.params['size'])
+
+                self.canvas = making_widget("Canvas")(self.window, width=self.params['size'][0],
+                                                      height=self.params['size'][1], bg=bg)
+                self.canvas.grid()
+            else:
+                self.canvas = self.params['canvas']
+            self.__depict_progress(self.params['position'])
+
+        def __call__(self, *args, **kwargs):
+            self.__start()
+            self.func(*args, **kwargs)
+            time.sleep(0.5)
+            if hasattr(self, 'window'):
+                self.window.destroy()
+            else:
+                self.canvas.delete('progressbar')
+
+        def add_arg(self, params, **kwargs):
+            if t := (type(params)) != dict:
+                raise ValueError(
+                    f"The parameter params should be a dict, but got {t}")
+            params.update(args)
+
+            for key in params:
+                if key not in valid_args:
+                    raise ValueError(f"Not a valid arguments: {key}")
+
+                self.__class__.params[key] = params[key]
+
+        def compelete_part(self, proportion):
+            self.__depict_progress(proportion=proportion)
+
+    ProgressBar.params = default_params
+    return ProgressBar

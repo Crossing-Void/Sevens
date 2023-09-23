@@ -1,1 +1,1 @@
-__all__ = ["controler", "soundeffect"]
+__all__ = ["controler", "soundeffect", "initializer"]

@@ -6,9 +6,20 @@
 The font.py is mainly for font manipulations
 '''
 from tkinter.font import Font
-
+import tkinter.font as font
+import os
 
 _font_family = 'Inconsolata'
+_font_file_location = "data\\inconsolata.ttf"
+
+
+def check_font():
+    if _font_family in list(font.families()):
+        return True
+
+
+def set_font():
+    os.system(_font_file_location)
 
 
 def change_font(font):

@@ -1,12 +1,12 @@
 from Tkinter_template.Assets.project_management import create_menu
 from Tkinter_template.Assets.image import tk_image
-from Tkinter_template.Assets.font import font_get
+from Tkinter_template.Assets.font import font_get, check_font
 from Tkinter_template.Assets.music import Music
 from Tkinter_template.base import Interface
-from modules import initialize
 from modules.effect import *
 from modules import *
 import time
+import sys
 
 Interface.rate = 1.0
 
@@ -14,6 +14,7 @@ Interface.rate = 1.0
 class Main(Interface):
     def __init__(self, title: str, icon=None, default_menu=True):
         super().__init__(title, icon, default_menu)
+
         # ----- revise -----
         self.dashboard['height'] = int(self.dashboard['height']) - 20
         self.dashboard_side = int(self.dashboard['width']), int(
@@ -23,8 +24,13 @@ class Main(Interface):
             self.canvas['height'])
         # ----- revise -----
         # ----- check -----
-        initialize.check_path()
-        initialize.check_files(int(self.canvas_side[1]/3))
+        self.initializer = initializer.Initializer(self)
+        if not self.initializer.check_font_ready():
+            sys.exit()
+
+        self.initializer.check_path()
+        self.initializer.check_files(int(self.canvas_side[1] / 3))
+
         # ----- check -----
 
         # -------------------------
