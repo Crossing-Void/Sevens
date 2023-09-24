@@ -35,8 +35,9 @@ class Chip:
         "ne": "right"
     }
 
-    def __init__(self, app) -> None:
+    def __init__(self, app, app2=None) -> None:
         self.app = app
+        self.controler = app2
         self.c = self.app.canvas
         self.cs = self.app.canvas_side
 
@@ -83,3 +84,14 @@ class Chip:
 
         self.c.create_image(position[0], position[1], image=_chip(
             money).draw(size, "bottom"), **kwargs)
+
+    def configure_chip(self):
+        corr = {
+            0: ((self.cs[0]-10, self.cs[1]-10), "se"),
+            1: ((self.chip_size+10, self.cs[1]-10), "sw"),
+            2: ((self.chip_size+10, self.chip_size+10), "nw"),
+            3: ((self.cs[0]-10, self.chip_size+10), "ne"),
+        }
+        for i in range(4):
+            self.show_chips(
+                self.controler.players[i].money, corr[i][0], corr[i][1])
