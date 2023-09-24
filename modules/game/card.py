@@ -122,6 +122,7 @@ class Card:
                 self.controler.players[n % 4].card.append(deck[0])
                 del deck[0]
             self.show_hand(n % 4, turn_over=True if n % 4 == 0 else False)
+
             self.c.update()
             time.sleep(0.1)
 
@@ -216,5 +217,10 @@ class Card:
         for s in range(1, 5):
             for r in range(1, 14):
                 self.c.create_image(w/2 + (r-7)*real_w*3/4, y + padding + (padding+real_h)*(s-1),
-                                    image=self.Card.card_name_to_image(s, r, real_w, True), anchor="n",
+                                    image=self.card_name_to_image(s, r, real_w, True), anchor="n",
                                     state="hidden", tags=(f"table-{s}-{r}"))
+
+    def show_card_in_table(self, card: _card):
+        suit, rank = card.data_to_num()
+        self.c.itemconfig(f"table-{suit}-{rank}", state="normal")
+        self.c.update()

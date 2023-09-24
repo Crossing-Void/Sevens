@@ -44,7 +44,7 @@ class Com(_player):
     def __str__(self) -> str:
         return f"Com object id: {self.id}"
 
-    def random_play(self, table):
+    def __random_play(self, table):
         valid = list(
             filter(lambda c: self.judge_card_valid(c, table), self.card))
         if valid:
@@ -52,6 +52,9 @@ class Com(_player):
         else:
             # depose
             return ("depose", random.choice(self.card))
+
+    def play(self, table):
+        return self.__random_play(table)
 
 
 class Player(_player):
@@ -63,3 +66,6 @@ class Player(_player):
 
     def __str__(self) -> str:
         return f"Player object id: {self.id}"
+
+    def play(self, table):
+        pass

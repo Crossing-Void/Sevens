@@ -29,6 +29,7 @@ class Animation:
             self.controler.Chip.configure_chip()
             self.controler.Card.deal_card()
             self.controler.Card.create_table()
+            self.controler.game()
 
         canvas_reduction(self.c, self.cs, self.app.Musics,
                          "background.png", "setup.mp3")
