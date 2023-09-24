@@ -28,6 +28,21 @@ class _player:
     def sort_card(self):
         self.card.sort(key=lambda card: card.data_to_num())
 
+    def play_card(self, obj, table):
+        suit, rank = obj.data_to_num()
+        if rank == 7:
+            self.card.remove(obj)
+            return True
+        else:
+            numbers = [card.data_to_num()[1]
+                       for card in table if card.suit == obj.suit]
+            if not numbers:
+                return False
+            if rank in (max(numbers)+1, min(numbers)-1):
+                self.card.remove(obj)
+                return True
+            return False
+
 
 class Com(_player):
     def __init__(self, name: str, image: str, money: int) -> None:
