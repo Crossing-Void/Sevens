@@ -67,5 +67,5 @@ class Player(_player):
     def __str__(self) -> str:
         return f"Player object id: {self.id}"
 
-    def play(self, table):
-        pass
+    def play(self, controler):
+        controler.Card.player_bind(controler.players.index(self))

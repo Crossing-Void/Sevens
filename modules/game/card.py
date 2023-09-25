@@ -133,52 +133,6 @@ class Card:
         self.show_hand(0, sort=True, turn_over=True)
         self.c.update()
 
-        # def enter(num):
-        #     w = int((self.cs[0] - 400) / 5 / 4)
-        #     if self.__select_card is None and self.c.coords(f"hand-0-{num}")[1] > self.cs[1] + w / 4 - 1:
-        #         self.c.move(f"hand-0-{num}", 0, -w)
-
-        # def leave(num):
-        #     w = int((self.cs[0] - 400) / 5 / 4)
-        #     if self.__select_card is None and self.c.coords(f"hand-0-{num}")[1] < self.cs[1] + 1:
-        #         self.c.move(f"hand-0-{num}", 0, w)
-
-        # def press(num):
-        #     w = int((self.cs[0] - 400) / 5 / 4)
-        #     if self.__select_card is None:
-        #         if self.c.coords(f"hand-0-{num}")[1] > self.cs[1] + w / 4 - 1:
-        #             self.c.move(f"hand-0-{num}", 0, -w)
-        #         self.__select_card = num
-
-        #     else:
-        #         if num == self.__select_card:
-        #             self.c.move(f"hand-0-{self.__select_card}", 0, w)
-        #             self.__select_card = None
-        #         else:
-        #             self.c.move(f"hand-0-{self.__select_card}", 0, w)
-        #             self.c.move(f"hand-0-{num}", 0, -w)
-        #             self.__select_card = num
-
-        # def double_press(num):
-        #     card = player.Player.numto_player(0).card[num]
-        #     suit, rank = card.data_to_num()
-        #     #  judge !!!!!
-        #     if not player.Player.numto_player(0).play_card(card, []):
-        #         play_sound("game/wrong")
-        #     self.c.itemconfig(f"table-{suit}-{rank}", state="normal")
-        # for c in range(13):
-
-        #     self.c.tag_bind(f"hand-0-{c}", "<Enter>",
-        #                     lambda e, n=c: enter(n))
-        #     self.c.tag_bind(f"hand-0-{c}", "<Leave>",
-        #                     lambda e, n=c: leave(n))
-        #     self.c.tag_bind(f"hand-0-{c}", "<Button-1>",
-        #                     lambda e, n=c: press(n))
-        #     self.c.tag_bind(f"hand-0-{c}", "<Double-Button-1>",
-        #                     lambda e, n=c: double_press(n))
-        # self.__select_card = None
-        # self.__create_table()
-
     def show_hand(self, num, sort=False, turn_over=False):
         self.c.delete(f"hand-{num}")
         corr = {
@@ -224,3 +178,88 @@ class Card:
         suit, rank = card.data_to_num()
         self.c.itemconfig(f"table-{suit}-{rank}", state="normal")
         self.c.update()
+
+    def player_bind(self, number):
+        def bind_or_unbind(bind: bool, judge=False):
+            nonlocal depose_mode
+            for c in range(len(self.controler.players[number].card)):
+                if bind:
+                    self.c.tag_bind(f"hand-0-{c}", "<Enter>",
+                                    lambda e, n=c: enter(n))
+                    self.c.tag_bind(f"hand-0-{c}", "<Leave>",
+                                    lambda e, n=c: leave(n))
+                    self.c.tag_bind(f"hand-0-{c}", "<Button-1>",
+                                    lambda e, n=c: press(n))
+                    self.c.tag_bind(f"hand-0-{c}", "<Double-Button-1>",
+                                    lambda e, n=c: double_press(n))
+                    if judge:
+                        if self.controler.players[number].judge_card_valid(
+                                self.controler.players[number].card[c], self.controler.table):
+                            depose_mode = False
+                else:
+                    self.c.tag_unbind(f"hand-0-{c}", "<Enter>")
+                    self.c.tag_unbind(f"hand-0-{c}", "<Leave>")
+                    self.c.tag_unbind(f"hand-0-{c}", "<Button-1>")
+                    self.c.tag_unbind(f"hand-0-{c}", "<Double-Button-1>")
+        w = int((self.cs[0] - 400) / 5 / 4)
+
+        def enter(num):
+            if select_card is None and self.c.coords(f"hand-0-{num}")[1] > self.cs[1] + w / 4 - 1:
+                self.c.move(f"hand-0-{num}", 0, -w)
+
+        def leave(num):
+            if select_card is None and self.c.coords(f"hand-0-{num}")[1] < self.cs[1] + 1:
+                self.c.move(f"hand-0-{num}", 0, w)
+
+        def press(num):
+            nonlocal select_card
+            if select_card is None:
+                if self.c.coords(f"hand-0-{num}")[1] > self.cs[1] + w / 4 - 1:
+                    self.c.move(f"hand-0-{num}", 0, -w)
+                select_card = num
+
+            else:
+                if num == select_card:
+                    self.c.move(f"hand-0-{select_card}", 0, w)
+                    select_card = None
+                else:
+                    self.c.move(f"hand-0-{select_card}", 0, w)
+                    self.c.move(f"hand-0-{num}", 0, -w)
+                    select_card = num
+
+        def double_press(num):
+            p = self.controler.players[number]
+            card = p.card[num]
+
+            if depose_mode:
+                p.depose_a_card(card)
+                self.show_hand(number, sort=True, turn_over=True)
+                self.c.update()
+                bind_or_unbind(False)
+                if self.controler.player_now == 3:
+                    self.controler.player_now = 0
+                else:
+                    self.controler.player_now += 1
+                self.controler.turn(self.controler.player_now)
+            else:
+
+                if not p.judge_card_valid(card, self.controler.table):
+                    play_sound("game/wrong")
+                else:
+                    # success
+                    p.play_a_card(card)
+                    self.controler.table.append(card)
+                    self.show_card_in_table(card)
+                    self.show_hand(number, sort=True, turn_over=True)
+                    self.c.update()
+                    bind_or_unbind(False)
+                    if self.controler.player_now == 3:
+                        self.controler.player_now = 0
+                    else:
+                        self.controler.player_now += 1
+                    self.controler.turn(self.controler.player_now)
+
+        select_card = None
+        depose_mode = True
+
+        bind_or_unbind(True, True)
