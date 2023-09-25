@@ -138,6 +138,12 @@ class Effect:
             self.__round_money = corr[round]
             self.__round_valid = True
             show2()
+            self.c.delete("chip")
+            self.chips.show_chips(self.__round_money, (
+                w/2 + int(w-30)/2 - 100 -
+                measure("Money: 1000", int(height*3/8)),
+                y + padding+(height+interval) + height/2
+            ))
 
         if not self.c.find_withtag("player-mode-hidden-rectangle"):
             w, h = self.cs

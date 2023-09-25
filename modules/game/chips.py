@@ -49,6 +49,11 @@ class Chip:
             money -= num * value
         return number_of_chip
 
+    @classmethod
+    def change_chip_size(cls, size: int):
+        cls.chip_size = size
+        cls.overlapping_width = int(cls.chip_size / 25)
+
     def show_chips(self, money: int, position: tuple, angle="se"):
         if angle not in ("se", "sw", "ne", "nw"):
             raise ValueError(f"The angle not valid, got {angle}")
