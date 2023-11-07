@@ -1,126 +1,160 @@
 from Tkinter_template.Assets.project_management import canvas_reduction
-from Tkinter_template.Assets.image import tk_image
-from Tkinter_template.Assets.font import font_get, measure, font_span
 from Tkinter_template.Assets.soundeffect import play_sound
+from Tkinter_template.Assets.image import tk_image
+from Tkinter_template.Assets.font import font_get
+from modules.effect.base import Base
 import random
 import time
 
 
-class Effect:
-    def __init__(self, app) -> None:
-        self.app = app
-        self.c = self.app.canvas
-        self.cs = self.app.canvas_side
+class Effect(Base):
+    def __init__(self, main, controler, timer_number=1):
+        super().__init__(main, controler, timer_number)
+        self.c = self.main.canvas
+        self.cs = self.main.canvas_side
 
-    def __draw_progress(self, middle_w, height, length, proportion):
-        # done
+        # decide progress bar length
+        for _ in range(10):
+            if int(self.cs[1]/4) < _ * 100:
+                self.progress_length = _ * 100
+                break
+
+    def __draw_progress(self, proportion):
+        w, h = self.cs
+        middle = w / 4 * 3
+        height = h / 2 + h / 8 + 80
+        l = self.progress_length
         proportion /= 100
-        self.c.create_line(middle_w-length/2, height,
-                           middle_w-length/2+length*proportion, height,
-                           width=40, fill="blue", tags=("record", "record-done", "record-progress", f"record-whole1"))
+        # done
+        self.c.create_line(middle-l/2, height,
+                           middle-l/2+l*proportion, height,
+                           width=40, fill="blue", tags=("record", "record-done", "record-progress", f"record-whole-record", "record"))
         # not yet
-        self.c.create_line(middle_w-length/2+length*proportion, height,
-                           middle_w+length/2, height,
-                           width=40, fill="silver", tags=("record", "record-notyet", "record-progress", f"record-whole1"))
+        self.c.create_line(middle-l/2+l*proportion, height,
+                           middle+l/2, height,
+                           width=40, fill="silver", tags=("record", "record-notyet", "record-progress", f"record-whole-record", "record"))
         # percent
-        self.c.create_text(middle_w+length/2 + 20, height, text=f"{int(proportion*100)}%", anchor="w",
-                           font=font_get(30), fill="blue" if int(proportion*100) != 0 else "silver", tags=("record", "record-percent", "record-progress", f"record-whole1"))
+        self.c.create_text(middle+l/2 + 20, height, text=f"{int(proportion*100)}%", anchor="w",
+                           font=font_get(30), fill="blue" if int(proportion*100) != 0 else "silver", tags=("record", "record-percent", "record-progress", f"record-whole-record", "record"))
 
     def start(self):
-        self.__record_enter = None
-        self.__record_state = 0
-        self.__proportion = 0
 
-        def enter(i, limit):
-            play_sound("record/enter_frame")
-            self.__record_enter = i
-            self.__limit = limit
+        def press(type_):
+            play_sound("effect/select_record/press")
+            self.end(type_)
 
-        def leave(i):
-            self.__record_enter = None
-            self.__record_state = 0
-            if self.c.coords(f"record-image{i}")[1] <= self.__limit - 1:
-                self.c.move(f"record-image{i}", 0, 60)
-            if i == 1:
-                self.__proportion = 0
-                self.c.delete("record-progress")
-                self.__draw_progress(
-                    self.__middle_w, self.__height, self.__progress_length, self.__proportion)
-
-        def press(i):
-            play_sound("record/press_frame")
-            self.end(i)
-
-        canvas_reduction(self.c, self.cs, self.app.Musics,
-                         "record.png", "record.mp3")
+        self.__record_enter = None    # new or record
+        self.__record_state = 0       # 0 or 1 stand for up or down
+        self.__proportion = 0         # proportion 0 ~ 100 stand for %
+        self.__is_enter = False
+        canvas_reduction(self.c, self.cs, self.controler.music_player,
+                         "select_record.png", "effect\\select_record.mp3")
 
         w, h = self.cs
-        image_name = ['new.png', 'record.png']
-        for i in range(2):
-            self.c.create_image(w/4 * (2*i+1), h / 2,
-                                image=tk_image("frame.png", int(
-                                    w/2-30), h, dirpath="images\\system"),
-                                tags=("record", f"record-frame{i}", f"record-whole{i}"))
-            self.c.create_image(w/4 * (2*i+1), h / 8,
-                                image=tk_image(image_name[i], int(
-                                    w/4-30), int(h/6), dirpath="images\\effect\\text"),
-                                tags=("record", f"record-text{i}", f"record-whole{i}"))
-            self.c.create_image(w/4 * (2*i+1), h / 2,
-                                image=tk_image(image_name[i],  height=int(
-                                    h/4), dirpath="images\\effect\\icon"),
-                                tags=("record", f"record-image{i}", f"record-whole{i}"))
-            if i == 0:
-                # new
-                pass
-            else:
-                # record
-                for _ in range(10):
-                    if int(h/4) < _ * 100:
-                        self.__progress_length = _ * 100
-                        break
-                self.__middle_w = w/4 * (2*i+1)
 
-                self.__height = h / 2 + h / 8 + 80
-                self.__draw_progress(
-                    self.__middle_w, self.__height, self.__progress_length, self.__proportion)
+        # building new
+        self.c.create_image(w/4, h/2,
+                            image=tk_image("frame.png", int(
+                                w/2-30), h, dirpath="images\\effect\\select_record"),
+                            tags=("record", f"record-frame-new", f"record-whole-new", "new"))
+        self.c.create_image(w/4, h/8,
+                            image=tk_image("new_title.png", int(
+                                w/4-30), int(h/6), dirpath="images\\effect\\select_record"),
+                            tags=("record", f"record-text-new", f"record-whole-new", "new"))
+        self.c.create_image(w/4, h/2,
+                            image=tk_image("new_icon.png",  height=int(
+                                h/4), dirpath="images\\effect\\select_record"),
+                            tags=("record", f"record-image-new", f"record-whole-new", "new"))
 
-            self.c.tag_bind(f"record-whole{i}",
-                            "<Enter>", lambda e, i=i, limit=h / 2: enter(i, limit))
-            self.c.tag_bind(f"record-whole{i}",
-                            "<Leave>", lambda e, i=i: leave(i))
-            self.c.tag_bind(f"record-whole{i}",
-                            "<Button-1>", lambda e, i=i: press(i))
-        self.record_timer = time.time()
+        self.c.tag_bind(f"record-whole-new",
+                        "<Button-1>", lambda e: press("new"))
 
-    def end(self, i):
-        mode = i
-        self.app.mode = i
-        # delete not select
-        time.sleep(0.5)
-        self.c.delete(f"record-whole1")
-        self.c.update()
+        # building record
+        self.c.create_image(w/4*3, h/2,
+                            image=tk_image("frame.png", int(
+                                w/2-30), h, dirpath="images\\effect\\select_record"),
+                            tags=("record", f"record-frame-record", f"record-whole-record", "record"))
+        self.c.create_image(w/4*3, h/8,
+                            image=tk_image("record_title.png", int(
+                                w/4-30), int(h/6), dirpath="images\\effect\\select_record"),
+                            tags=("record", f"record-text-record", f"record-whole-record", "record"))
+        self.c.create_image(w/4*3, h/2,
+                            image=tk_image("record_icon.png",  height=int(
+                                h/4), dirpath="images\\effect\\select_record"),
+                            tags=("record", f"record-image-record", f"record-whole-record", "record"))
+
+        self.c.tag_bind(f"record-whole-record",
+                        "<Button-1>", lambda e: press("record"))
+
+        # record
+
+        self.__draw_progress(self.__proportion)
+
+    def end(self, type_):
+        self.controler.user_select_record = type_
         time.sleep(0.5)
 
-        if mode == 0:
-            # new
-            self.app.player.start()
-        else:
-            # record
-            pass
+        if type_ == "new":
+            self.c.delete(f"record-whole-record")
+            self.c.update()
+            time.sleep(0.5)
+            self.controler.effect_enter("select_player_number")
+        elif type_ == "record":
+            self.c.delete(f"record-whole-new")
+            self.c.update()
+            time.sleep(0.5)
+            canvas_reduction(
+                self.c, self.cs, self.controler.music_player, music="effect\\home.mp3")
+            self.c.create_image(self.cs[0]/2, self.cs[1]/2, image=tk_image(
+                "error_icon.png", int(self.cs[1]/2)
+            ))
+            self.c.create_text(self.cs[0]/2, 20, anchor="n", text="Not Support Yet\n(Press Game Menu To Go Back To Home)", justify="center",
+                               font=font_get(30), fill="#ff6b87")
 
     def loop(self):
         if not self.c.find_withtag("record"):
             return
-        if (t := time.time()) - self.record_timer >= 0.4:
+
+        is_enter, objs = self.detect()
+
+        def leave(type_):
+            self.__record_enter = None
+            self.__record_state = 0
+            if self.c.coords(f"record-image-{type_}")[1] <= h/2 - 1:
+                self.c.move(f"record-image-{type_}", 0, 60)
+            if type_ == "record":
+                self.__proportion = 0
+                self.c.delete("record-progress")
+                self.__draw_progress(self.__proportion)
+        if is_enter:
+            if not self.__is_enter:
+                tag = self.c.gettags(objs[1])[-1]
+                tag = tag if tag != "current" else self.c.gettags(objs[1])[-2]
+                play_sound("effect/select_record/enter")
+                self.__record_enter = tag
+                self.__is_enter = True
+
+        else:
+            if self.__limit_high:
+                r, c = self.__player_enter
+                if self.c.coords(f"player-person{r}_{c}_0")[1] <= self.__limit_high - 1:
+                    for i in range(4):
+                        self.c.move(
+                            f"player-person{r}_{c}_{i}", 0, 30)
+                self.__limit_high = 0
+                self.__is_enter = False
+                self.__player_enter = None
+                self.__player_state = 0
+
+        if (t := time.time()) - self.timer[0] >= 0.4:
             if (s := self.__record_enter) is not None:
-                self.c.move(f"record-image{s}",
+                self.c.move(f"record-image-{s}",
                             0, 60 if self.__record_state else -60)
                 self.__record_state = int(not self.__record_state)
-            if s == 1:
+            if s == "record":
                 self.__proportion += random.randint(4, 9)
                 if self.__proportion > 100:
                     self.__proportion -= 100
                 self.c.delete("record-progress")
-                self.__draw_progress(
-                    self.__middle_w, self.__height, self.__progress_length, self.__proportion)
-            self.record_timer = t
+                self.__draw_progress(self.__proportion)
+            self.timer[0] = t
