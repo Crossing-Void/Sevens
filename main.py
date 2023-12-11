@@ -53,7 +53,7 @@ if __name__ == "__main__":
             main.Controlers.effect_loop("select_player_number")
             main.Controlers.effect_loop("select_game_mode")
             # main.player_mode.loop()
-           
+
             time.sleep(0.02)
-        except:
+        except BaseException:
             1 / 0
