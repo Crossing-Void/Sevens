@@ -10,7 +10,7 @@ import tkinter.font as font
 import os
 
 _font_family = 'Inconsolata'
-_font_file_location = "data\\inconsolata.ttf"
+_font_file_location = "data\\fonts_install\\inconsolata.ttf"
 
 
 def check_font():

@@ -38,7 +38,6 @@ class Effect(Base):
                            font=font_get(30), fill="blue" if int(proportion*100) != 0 else "silver", tags=("record", "record-percent", "record-progress", f"record-whole-record", "record"))
 
     def start(self):
-
         def press(type_):
             play_sound("effect/select_record/press")
             self.end(type_)
@@ -99,10 +98,14 @@ class Effect(Base):
             self.c.update()
             time.sleep(0.5)
             self.controler.effect_enter("select_player_number")
+        
         elif type_ == "record":
             self.c.delete(f"record-whole-new")
             self.c.update()
             time.sleep(0.5)
+
+            # need to build where it should going 
+            # put error in there
             canvas_reduction(
                 self.c, self.cs, self.controler.music_player, music="effect\\home.mp3")
             self.c.create_image(self.cs[0]/2, self.cs[1]/2, image=tk_image(
@@ -110,41 +113,41 @@ class Effect(Base):
             ))
             self.c.create_text(self.cs[0]/2, 20, anchor="n", text="Not Support Yet\n(Press Game Menu To Go Back To Home)", justify="center",
                                font=font_get(30), fill="#ff6b87")
+            
+            
+            
 
     def loop(self):
         if not self.c.find_withtag("record"):
             return
 
         is_enter, objs = self.detect()
-
+        print(is_enter, objs)
         def leave(type_):
             self.__record_enter = None
             self.__record_state = 0
-            if self.c.coords(f"record-image-{type_}")[1] <= h/2 - 1:
+            self.__is_enter = False
+            if self.c.coords(f"record-image-{type_}")[1] <= self.cs[1]/2 - 1:
                 self.c.move(f"record-image-{type_}", 0, 60)
             if type_ == "record":
                 self.__proportion = 0
                 self.c.delete("record-progress")
                 self.__draw_progress(self.__proportion)
+        
         if is_enter:
             if not self.__is_enter:
+                
                 tag = self.c.gettags(objs[1])[-1]
+                print(tag)
                 tag = tag if tag != "current" else self.c.gettags(objs[1])[-2]
                 play_sound("effect/select_record/enter")
                 self.__record_enter = tag
+                print(tag)
                 self.__is_enter = True
 
         else:
-            if self.__limit_high:
-                r, c = self.__player_enter
-                if self.c.coords(f"player-person{r}_{c}_0")[1] <= self.__limit_high - 1:
-                    for i in range(4):
-                        self.c.move(
-                            f"player-person{r}_{c}_{i}", 0, 30)
-                self.__limit_high = 0
-                self.__is_enter = False
-                self.__player_enter = None
-                self.__player_state = 0
+            if self.__is_enter:
+                leave(self.__record_enter)
 
         if (t := time.time()) - self.timer[0] >= 0.4:
             if (s := self.__record_enter) is not None:

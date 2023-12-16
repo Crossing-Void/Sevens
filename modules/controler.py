@@ -23,12 +23,12 @@ class Control:
         self.select_record = select_record.Effect(self.app, self)
         # user arguments
 
-        self.user_select_game_mode = None  # (round, money)
-        self.user_select_player_number = None  # int
+        # self.user_select_game_mode = None  # (round, money)
+        # self.user_select_player_number = None  # int
         self.user_select_record = None  # "new" or "record"
 
         # game object
-        self.chip = chip.Chip(self.app, self)
+        # self.chip = chip.Chip(self.app, self)
         # self.Chip = chips.Chip(app, self)
         # self.Card = card.Card(app, self)
         # self.Animation = animation.Animation(app, self)
