@@ -4,6 +4,7 @@ from Tkinter_template.Assets.music import Music
 from Tkinter_template.Assets.image import tk_image
 from Tkinter_template.Assets.font import font_get
 from modules.game import *
+
 import random
 import time
 import os
@@ -13,33 +14,40 @@ from modules.effect import *
 class Control:
     def __init__(self, app) -> None:
         self.app = app
-
+        self.c = self.app.canvas
+        self.cs = self.app.canvas_side
         # music player
         self.music_player = Music()
+
         # initialize effect
         self.home = home.Effect(self.app, self, 2)
-        self.select_game_mode = select_game_mode.Effect(self.app, self)
-        self.select_player_number = select_player_number.Effect(self.app, self)
         self.select_record = select_record.Effect(self.app, self)
-        # user arguments
-
-        # self.user_select_game_mode = None  # (round, money)
-        # self.user_select_player_number = None  # int
-        self.user_select_record = None  # "new" or "record"
+        self.select_player_number = select_player_number.Effect(self.app, self)
+        self.select_game_mode = select_game_mode.Effect(self.app, self)
 
         # game object
-        # self.chip = chip.Chip(self.app, self)
-        # self.Chip = chips.Chip(app, self)
-        # self.Card = card.Card(app, self)
-        # self.Animation = animation.Animation(app, self)
+        self.chip = chip.Chip(self.app, self)
+        self.card = card.Card(self.app, self)
+        
+    @staticmethod
+    def calculate_turn(num: int):
+        return num + 1 if num <= 2 else 0
+        
+        
 
-        # self.record_mode = None
-        # self.player_number = None
-        # self.game_mode = None
+        
+       
+    
+    def initialize(self):
+        # user arguments
+        self.user_select_record = None  # "new" or "record"
+        self.user_select_player_number = None  # int
+        self.user_select_game_mode = None  # nametuple(round, money)
 
-        # self.players = []
-        # self.table = []
-        # self.round_now = 0
+        # --------------- for game ---------------
+        self.round_count = 1
+        self.players = []
+        
 
     def effect_enter(self, option: str):
         if option not in ("home", "select_game_mode",
@@ -55,83 +63,131 @@ class Control:
 
         exec(f"self.{option}.loop()")
 
-    # def initialize(self):
-    #     # select all mode
-    #     self.record_mode = self.app.mode  # int 0
-    #     self.player_number = self.app.player_number  # int 1
-    #     self.game_mode = self.app.game_mode  # tuple(15, 500)
+    # --------------------------- for game ---------------------------
+    def round(self, round: int):
+        def revise(e):
+            self.c.unbind("<Button-1>")
+            self.c.bind("<Button-1>", press)
+            
+        def press(e):
+            self.c.unbind("<Button-1>")
+            play_sound("game/start_a_game")
+            self.c.delete("round")
+            self.c.update()
+            time.sleep(0.5)
+            self.music_player.music = os.path.join(
+                "game\\game_duration", random.choice(os.listdir("musics\\game\\game_duration")))
+            time.sleep(1)
+            
+            # self.round(3)
+            # self.c.event_generate("<Button-1>", x=30, y=30)
 
-    #     # create player
-    #     self.players.clear()
-    #     # for _ in range(self.player_number):
-    #     #     self.players.append(
-    #     #         player.Player("r", None, self.game_mode[1])
-    #     #     )
-    #     # for _ in range(self.player_number, 4):
-    #     #     self.players.append(
-    #     #         player.Com("r", None, self.game_mode[1])
-    #     #     )
-    #     for _ in range(4):
-    #         self.players.append(
-    #             player.Com("r", None, self.game_mode[1])
-    #         )
-    #     # start round
-    #     self.round_now = 0
-    #     self.round_now += 1
-    #     self.Animation.round(self.round_now)
 
-    #     # if (self.game_mode[0] != "∞") and (round > self.game_mode[0]):
+            # enter a game
+            if round == 1:
+                # create player
+                for i in range(4):
+                    info = ("r", None, self.user_select_game_mode.money)
+                    # if i < self.user_select_player_number:
+                    #     self.players.append(player.Player(*info))
+                    # else:
+                    #     self.players.append(player.Com(*info))
+                    self.players.append(player.Com(*info))
+            self.game()
+            
+            
 
-    # def turn(self, player_number):
-    #     print(player_number)
-    #     for p in self.players:
-    #         if p.card:
-    #             break
+        img_path = "images\\game\\round"
+        canvas_reduction(self.c, self.cs, self.music_player,
+                         "game.png", "game\\ready_for_game.mp3")
+        # image
+        width_round = tk_image("round.png", height=200,
+                               dirpath=img_path, get_object_only=True).width
+        middle_point = width_round
+        for number in str(round):
+            middle_point += tk_image(f"{number}.png", height=200,
+                                     dirpath=img_path, get_object_only=True).width
+            middle_point += 20
+        middle_point = (middle_point + 50) / 2
 
-    #     else:
-    #         # end
-    #         self.end()
-    #     p = self.players[player_number]
-    #     if p.__class__ == player.Com:
-    #         # time.sleep(random.randint(1, 3))
-    #         time.sleep(0.1)
-    #         result = p.play(self.table)
-    #         if result[0] == "play":
-    #             p.play_a_card(result[1])
-    #             self.table.append(result[1])
-    #             self.Card.show_card_in_table(result[1])
-    #         elif result[0] == "depose":
-    #             p.depose_a_card(result[1])
+        self.c.create_image(
+            self.cs[0]/2 - middle_point + width_round / 2, self.cs[1]/2, image=tk_image("round.png", height=200, dirpath="images\\game\\round"),
+            tags=("round"))
+        revise_term = 0
+        for number in str(round):
+            self.c.create_image(
+                self.cs[0]/2 - middle_point + width_round + 50 + revise_term, self.cs[1]/2, image=tk_image(f"{number}.png", height=200, dirpath="images\\game\\round"), anchor='w',
+                tags=("round"))
+            revise_term += tk_image(f"{number}.png", height=200,
+                                    dirpath=img_path, get_object_only=True).width + 20
 
-    #         # self.Card.show_hand(
-    #         #     player_number, sort=False)
-    #         if player_number != 0:
-    #             self.Card.show_hand(
-    #                 player_number, sort=False)
-    #         else:
-    #             self.Card.show_hand(
-    #                 player_number, sort=True, turn_over=True)
-    #         self.c.update()
+        self.c.bind("<Button-1>", revise)
 
-    #         if self.player_now == 3:
-    #             self.player_now = 0
-    #         else:
-    #             self.player_now += 1
-    #         self.turn(self.player_now)
-    #     elif p.__class__ == player.Player:
-    #         p.play(self)
+    
+    def game(self):
+        self.table = []
+        self.turn = 0
+        self.chip.configure_chip()
+        self.card.deal_card()
+        self.card.create_table()
 
-    # def game(self):
-    #     # animation enter here
+        # decide who is the first
+        for player in self.players:
+            if "Seven of Spades" in [str(card) for card in player.card]:
+                self.turn = self.players.index(player)
+        
+        self.play(self.turn)
+       
+    def play(self, turn_number: int):
+        for p in self.players:
+            if p.card:
+                break
+        else:
+            # end
+            # self.end()
+            return 
+        p = self.players[turn_number]
 
-    #     self.table = []
+        if p.__class__ == player.Com:
+            time.sleep(random.randint(4, 5))
+            result = p.play(self.table)
+            if result[0] == "play":
+                p.play_a_card(result[1])
+                self.table.append(result[1])
+                self.card.show_card_in_table(result[1])
+            elif result[0] == "depose":
+                p.depose_a_card(result[1])
+            print(result)
 
-    #     for player in self.players:
-    #         for card in player.card:
-    #             if str(card) == "Seven of Spades":
-    #                 self.player_now = self.players.index(player)
+            # need to be revised
+            if turn_number % 4 == 0:
+                self.card.show_hand(turn_number, sort=True, turn_over=True)
+            else:
+                self.card.show_hand(
+                    turn_number, sort=False, turn_over=True)
+            
+            
+            self.c.update()
+            self.turn = self.calculate_turn(turn_number)
+            self.play(self.turn)
+        # elif p.__class__ == player.Player:
+        #     p.play(self)
 
-    #     self.turn(self.player_now)
+   
+
+
+
+
+
+
+
+
+
+   
+
+    
+
+    
 
     # def end(self):
     #     color = {

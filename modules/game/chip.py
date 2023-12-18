@@ -35,11 +35,11 @@ class Chip:
         "ne": "right"
     }
 
-    def __init__(self, app, app2=None) -> None:
-        self.app = app
-        self.controler = app2
-        self.c = self.app.canvas
-        self.cs = self.app.canvas_side
+    def __init__(self, main, controler) -> None:
+        self.main = main
+        self.controler = controler
+        self.c = self.main.canvas
+        self.cs = self.main.canvas_side
 
     def __money_to_number_of_chip(self, money: int):
         number_of_chip = []
@@ -80,10 +80,10 @@ class Chip:
                     h += (self.chip_size * 1.2) * count
 
                 self.c.create_image(w, h, image=_chip(value).draw((self.chip_size, self.chip_size), self.corr[angle]), anchor="se",
-                                    tags=("chip"))
+                                    tags=("chips"))
             count += 1
 
-    def draw_chip(self, money: int, position: tuple, size: tuple, **kwargs):
+    def draw_single_chip(self, money: int, position: tuple, size: tuple, **kwargs):
         if money not in _chip_value:
             raise ValueError(f"{money} not supported")
 

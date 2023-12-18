@@ -1,6 +1,6 @@
 from abc import ABC, abstractclassmethod
 import time
-
+import re
 
 class Base(ABC):
     def __init__(self, main, controler, timer_number: int = 1):
@@ -28,7 +28,12 @@ class Base(ABC):
         objs = self.c.find_overlapping(x, y, x+1, y+1)
 
         if len(objs) <= 1:
-            # for nothing or only covers
-            return (False, objs)
+            return None
         else:
-            return (True, objs)
+            # directly return genre name
+            obj = objs[1]
+            tags = self.main.canvas.gettags(obj)
+            for tag in tags:
+                m = re.search("^(\w+)-(\w+)$", tag)
+                if m:
+                    return m.group(2) 

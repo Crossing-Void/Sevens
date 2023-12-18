@@ -1,3 +1,1 @@
-__all__ = ["animation",
-           "card", "chip",
-           "player"]
+__all__ = ["card", "chip", "player"]

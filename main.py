@@ -35,9 +35,12 @@ class Main(Interface):
 
         self.game_menu = create_menu(self.top_menu)
         self.top_menu.add_cascade(menu=self.game_menu, label="Game")
-        # menubar_main.add_command(label="Home", command=self.home.start)
+        self.game_menu.add_command(label="Home", command=self.start)
 
-        # start
+        self.start()
+
+    def start(self):
+        self.Controlers.initialize()
         self.Controlers.effect_enter("home")
 
 
@@ -52,7 +55,6 @@ if __name__ == "__main__":
             main.Controlers.effect_loop("select_record")
             main.Controlers.effect_loop("select_player_number")
             main.Controlers.effect_loop("select_game_mode")
-            # main.player_mode.loop()
 
             time.sleep(0.02)
         except BaseException:
