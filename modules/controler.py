@@ -70,7 +70,7 @@ class Control:
             self.c.bind("<Button-1>", press)
             
         def press(e):
-            self.c.unbind("<Button-1>")
+            self.c.tag_unbind("cover", "<Button-1>")
             play_sound("game/start_a_game")
             self.c.delete("round")
             self.c.update()
@@ -79,8 +79,7 @@ class Control:
                 "game\\game_duration", random.choice(os.listdir("musics\\game\\game_duration")))
             time.sleep(1)
             
-            # self.round(3)
-            # self.c.event_generate("<Button-1>", x=30, y=30)
+            
 
 
             # enter a game
@@ -97,6 +96,7 @@ class Control:
             
             
 
+        
         img_path = "images\\game\\round"
         canvas_reduction(self.c, self.cs, self.music_player,
                          "game.png", "game\\ready_for_game.mp3")
@@ -121,7 +121,7 @@ class Control:
             revise_term += tk_image(f"{number}.png", height=200,
                                     dirpath=img_path, get_object_only=True).width + 20
 
-        self.c.bind("<Button-1>", revise)
+        self.c.tag_bind("cover", "<Button-1>", press)
 
     
     def game(self):
@@ -144,11 +144,9 @@ class Control:
                 break
         else:
             # end
-            # self.end()
-            print("--------")
-            for p in self.players:
-                print(p.id, p.depose)
+            self.end()
             return 
+            
         p = self.players[turn_number]
 
         if p.__class__ == player.Com:
@@ -193,81 +191,83 @@ class Control:
 
     
 
-    # def end(self):
-    #     color = {
-    #         0: "red",
-    #         1: "green",
-    #         2: "blue",
-    #         3: "gold",
+    def end(self):
+        color = {
+            0: "red",
+            1: "green",
+            2: "blue",
+            3: "gold",
+        }
+        img_path = "images\\game\\result"
+        interval = 10
+        width = 100
+        self.c.create_image(self.cs[0]/2, self.cs[1]/2, image=tk_image("frame.png", int(self.cs[0]*3/4), int((5*interval+6*width)*25/23), dirpath=img_path),
+                            tags=("result", "result-frame"))
+        a, b = self.c.coords("result-frame")
+        a -= int(self.cs[0]*3/4) / 2
+        b -= int((5*interval+6*width)*25/23) / 2
 
-    #     }
-    #     interval = 10
-    #     width = 100
-    #     self.c.create_image(self.cs[0]/2, self.cs[1]/2, image=tk_image("result.png", int(self.cs[0]*3/4), int((5*interval+6*width)*25/23), dirpath="images\\game"),
-    #                         tags=("result-base"))
-    #     a, b = self.c.coords("result-base")
-    #     a -= int(self.cs[0]*3/4) / 2
-    #     b -= int((5*interval+6*width)*25/23) / 2
+        border_w = int(self.cs[0]*3/4) / 262 * 5  # half
+        border_h = (5*interval+6*width) / 23      # half
+        self.chip.change_chip_size(int(width*1.5/4))
+        points = []
+        for i in range(4):
+            player = self.players[i]
+            point = 0
+            for c in range(len(player.depose)):
+                player.depose[c].turn_over(True)
+                
+                self.c.create_image(border_w + a + interval + width*c, border_h + b + interval + (interval+width*1.5) * i,
+                                    image=self.card.card_obj_to_image(player.depose[c], width), anchor="nw"
+                                    )
+                point += player.depose[c].data_to_num()[1]
+            if point:
+                self.c.create_text(border_w + a + interval + width*(c+1), border_h + b + interval + (interval+width*1.5) * i + width*0.75,
+                                   anchor="w", text=f"{point}", font=font_get(int(width*3/8)), fill="gold"
+                                   )
+            points.append(point)
+            player.depose.clear()
 
-    #     border_w = int(self.cs[0]*3/4) / 262 * 5  # half
-    #     border_h = (5*interval+6*width) / 23      # half
-    #     self.Chip.change_chip_size(int(width*1.5/4))
-    #     points = []
-    #     for p in range(4):
-    #         player = self.players[p]
-    #         point = 0
-    #         for c in range(len(player.depose)):
-    #             player.depose[c].turn_over(True)
-    #             print(border_h + b + interval + (interval+width*1.5) * p)
-    #             self.c.create_image(border_w + a + interval + width*c, border_h + b + interval + (interval+width*1.5) * p,
-    #                                 image=self.Card.card_obj_to_image(player.depose[c], width), anchor="nw"
-    #                                 )
-    #             point += player.depose[c].data_to_num()[1]
-    #         if point:
-    #             self.c.create_text(border_w + a + interval + width*(c+1), border_h + b + interval + (interval+width*1.5) * p + width*0.75,
-    #                                anchor="w", text=f"{point}", font=font_get(int(width*3/8)), fill="gold"
-    #                                )
-    #         points.append(point)
-    #         player.depose.clear()
-
-    #     # judge winner
-    #     min_p = min(points)
-    #     info = []
-    #     for _ in range(4):
-    #         info.append(
-    #             (_,
-    #              "win" if points[_] == min_p else "lose",
-    #              points[_])
-    #         )
-    #     win, lose = 0, 0
-    #     bet = 0
-    #     for _ in info:
-    #         if _[1] == "win":
-    #             win += 1
-    #         else:
-    #             lose += 1
-    #             bet += _[2] if _[2] <= 50 else _[2] * 2
-    #     for _ in range(4):
-    #         if info[_][1] == "win":
-    #             text = f"+ {int(bet/win)}$"
-    #             self.players[_].money += int(bet/win)
-    #         else:
-    #             if info[_][2] > 50:
-    #                 text = f"- {info[_][2]*2}$"
-    #                 self.players[_].money -= info[_][2] * 2
-    #             else:
-    #                 text = f"- {info[_][2]}$"
-    #                 self.players[_].money -= info[_][2]
-    #         self.c.create_text(a + int(self.cs[0]*3/4) - interval - border_w, border_h + b + interval + (interval+width*1.5) * _,
-    #                            anchor="ne", text=self.players[_].name, font=font_get(int(width*1.5*3/12)), fill=color[_]
-    #                            )
-    #         self.c.create_text(a + int(self.cs[0]*3/4) - interval - border_w, border_h + b + interval + (interval+width*1.5) * _ + int(width*1.5*3/12)*4/3,
-    #                            anchor="ne", text=text, font=font_get(int(width*1.5*3/20)), fill="#ff6b87" if info[_][1] == "win" else "green",
-    #                            )
-    #         self.Chip.show_chips(info[_][2] if info[_][1] == "lose" else int(bet/win), (a + int(self.cs[0]*3/4) - interval - border_w,
-    #                                                                                     border_h + b + interval + (interval+width*1.5) * _ + width*1.5))
-    #     self.c.update()
-    #     self.Chip.change_chip_size(50)
-    #     time.sleep(7)
-    #     self.round_now += 1
-    #     self.Animation.round(self.round_now)
+        # judge winner
+        min_p = min(points)
+        info = []
+        for _ in range(4):
+            info.append(
+                (_,
+                 "win" if points[_] == min_p else "lose",
+                 points[_])
+            )
+        win, lose = 0, 0
+        bet = 0
+        for _ in info:
+            if _[1] == "win":
+                win += 1
+            else:
+                lose += 1
+                bet += _[2] if _[2] <= 50 else _[2] * 2
+        for _ in range(4):
+            if info[_][1] == "win":
+                text = f"+ {int(bet/win)}$"
+                self.players[_].money += int(bet/win)
+            else:
+                if info[_][2] > 50:
+                    text = f"- {info[_][2]*2}$"
+                    self.players[_].money -= info[_][2] * 2
+                else:
+                    text = f"- {info[_][2]}$"
+                    self.players[_].money -= info[_][2]
+            self.c.create_text(a + int(self.cs[0]*3/4) - interval - border_w, border_h + b + interval + (interval+width*1.5) * _,
+                               anchor="ne", text=self.players[_].name, font=font_get(int(width*1.5*3/12)), fill=color[_]
+                               )
+            self.c.create_text(a + int(self.cs[0]*3/4) - interval - border_w, border_h + b + interval + (interval+width*1.5) * _ + int(width*1.5*3/12)*4/3,
+                               anchor="ne", text=text, font=font_get(int(width*1.5*3/20)), fill="#ff6b87" if info[_][1] == "win" else "green",
+                               )
+            self.chip.show_chips(info[_][2] if info[_][1] == "lose" else int(bet/win), (a + int(self.cs[0]*3/4) - interval - border_w,
+                                                                                        border_h + b + interval + (interval+width*1.5) * _ + width*1.5))
+        self.c.update()
+        self.chip.change_chip_size(50)
+        time.sleep(7)
+        self.round_count += 1
+        
+        self.round(self.round_count)
+        

@@ -184,9 +184,9 @@ class Effect(Base):
             tags=("mode", "frame", f"frame-ok-arrow"), anchor='se')
 
         self.c.tag_bind(f"frame-ok0",
-                        "<Button-1>", lambda e: self.end())
+                        "<Button-1>", lambda e: self.end(e))
         self.c.tag_bind(f"frame-ok1",
-                        "<Button-1>", lambda e: self.end())
+                        "<Button-1>", lambda e: self.end(e))
     
 
     
@@ -290,7 +290,7 @@ class Effect(Base):
         self.c.tag_bind(f"mode-round",
                         "<Button-1>", lambda e: press("round"))
 
-    def end(self):
+    def end(self, e):
         if self.__valid:
             play_sound("effect/select_game_mode/success")
             area = "round" if self.c.itemcget("mode-round-outline", "state") == "normal" else "bankruptcy"

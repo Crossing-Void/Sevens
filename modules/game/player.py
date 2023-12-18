@@ -1,6 +1,6 @@
 from Tkinter_template.Assets.soundeffect import play_sound
 import random
-
+import re
 
 class _player:
     def __init__(self, controler, name: str, image: str, money: int, id_: int) -> None:
@@ -101,12 +101,18 @@ class Player(_player):
             self.controler.play(self.controler.turn)
                
         def enter(num):
-            if select_card is None and can.coords(f"hand-0-{num}")[1] > cs[1] + w / 4 - 1:
+            if select_card:
+                return
+            if can.coords(f"hand-0-{num}")[1] > cs[1] + w / 4 - 1:
                 can.move(f"hand-0-{num}", 0, -w/8)
-
+                
         def leave(num):
-            if select_card is None and can.coords(f"hand-0-{num}")[1] < cs[1] + w / 8 + 1:
+            if select_card:
+                return
+            if can.coords(f"hand-0-{num}")[1] < cs[1] + w / 8 + 1:
                 can.move(f"hand-0-{num}", 0, w/8)
+                
+           
         
         def press(num):
             nonlocal select_card
@@ -144,7 +150,25 @@ class Player(_player):
             can.tag_bind(f"hand-0-{c}", "<Double-Button-1>",
                             lambda e, n=c: double_press(n))
 
+        # config first enter
+     
+        x = self.controler.app.root.winfo_pointerx() - self.controler.app.root.winfo_rootx()
+        y = self.controler.app.root.winfo_pointery() - self.controler.app.root.winfo_rooty()
+        objs = can.find_overlapping(x, y, x+1, y+1)
+        max_number = -1
+        if len(objs) > 1:
+            for obj in objs[1:]:
+                tags = can.gettags(obj)
+                for tag in tags:
+                    m = re.search("^hand-\d-(\d)$", tag)
+                    if m:
+                        if int(m.group(1)) > max_number:
+                            max_number = int(m.group(1))
+            if max_number != -1:
+                enter(max_number)
+                        
 
+            
                     
         
 
