@@ -35,6 +35,12 @@ class Effect(Base):
         canvas_reduction(self.c, self.cs, self.controler.music_player,
                          "home.png", "effect\\home.mp3")
 
+        # create title image src
+        for i in range(10):
+            tk_image(
+                f"logo.png",  height=int(self.cs[1]/(3-i*0.2)), dirpath=img_path2
+            )
+
         # animate
         args = {
             "Clubs": (180, 179),
@@ -89,6 +95,7 @@ class Effect(Base):
         self.c.delete("home-text")
         self.c.delete("home-arrowL")
         self.c.delete("home-arrowR")
+
         # animate
         args = {
             "Spades": (135, 150),
@@ -130,7 +137,7 @@ class Effect(Base):
                 f"logo.png",  height=int(self.cs[1]/(3-i*0.2)), dirpath=img_path2),
                 tags=("home", "home-title"))
             self.c.update()
-            time.sleep(0.01)
+            time.sleep(0.02)
 
         self.controler.effect_enter("select_record")
 

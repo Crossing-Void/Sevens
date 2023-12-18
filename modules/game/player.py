@@ -1,11 +1,14 @@
+from Tkinter_template.Assets.soundeffect import play_sound
 import random
 
 
 class _player:
-    def __init__(self, name: str, image: str, money: int) -> None:
+    def __init__(self, controler, name: str, image: str, money: int, id_: int) -> None:
+        self.controler = controler
         self.name = name
         self.image = image
         self.money = money
+        self.id = id_
 
         self.card = []
         self.depose = []
@@ -35,8 +38,8 @@ class _player:
 
 
 class Com(_player):
-    def __init__(self, name: str, image: str, money: int) -> None:
-        super().__init__(name, image, money)
+    def __init__(self, controler, name: str, image: str, money: int, id_: int) -> None:
+        super().__init__(controler, name, image, money, id_)
 
     def __repr__(self) -> str:
         return f"Com object id: {self.id}"
@@ -58,8 +61,8 @@ class Com(_player):
 
 
 class Player(_player):
-    def __init__(self, name: str, image: str, money: int) -> None:
-        super().__init__(name, image, money)
+    def __init__(self, controler, name: str, image: str, money: int, id_: int) -> None:
+        super().__init__(controler, name, image, money, id_)
 
     def __repr__(self) -> str:
         return f"Player object id: {self.id}"
@@ -67,5 +70,86 @@ class Player(_player):
     def __str__(self) -> str:
         return f"Player object id: {self.id}"
 
-    # def play(self, controler):
-    #     controler.Card.player_bind(controler.players.index(self))
+    def play(self, table):
+        # <<<<<<<<<<<<<<<<<< change args to id
+        def unbind():
+            for c in range(len(self.card)):
+                can.tag_unbind(f"hand-0-{c}", "<Enter>")
+                can.tag_unbind(f"hand-0-{c}", "<Leave>")
+                can.tag_unbind(f"hand-0-{c}", "<Button-1>")
+                can.tag_unbind(f"hand-0-{c}", "<Double-Button-1>")
+        
+        def decide_card(num):
+            card = self.card[num]
+
+            if mode == "play":
+                if not self.judge_card_valid(card, table):
+                    play_sound("game/invalid")
+                    return 
+                
+            unbind()
+            if mode == "play":
+                self.play_a_card(card)
+                self.controler.table.append(card)
+                self.controler.card.show_card_in_table(card)
+            elif mode == "depose":
+                  self.depose_a_card(card)
+                  
+            self.controler.card.show_hand(self.id, sort=True, turn_over=True)
+            can.update()
+            self.controler.turn = self.controler.calculate_turn(self.controler.turn)
+            self.controler.play(self.controler.turn)
+               
+        def enter(num):
+            if select_card is None and can.coords(f"hand-0-{num}")[1] > cs[1] + w / 4 - 1:
+                can.move(f"hand-0-{num}", 0, -w/8)
+
+        def leave(num):
+            if select_card is None and can.coords(f"hand-0-{num}")[1] < cs[1] + w / 8 + 1:
+                can.move(f"hand-0-{num}", 0, w/8)
+        
+        def press(num):
+            nonlocal select_card
+            if select_card is None:
+                if can.coords(f"hand-0-{num}")[1] > cs[1] + w / 4 - 1:
+                    can.move(f"hand-0-{num}", 0, -w/8)
+                select_card = num
+
+            else:
+                if num == select_card:
+                    decide_card(num)
+                else:
+                    can.move(f"hand-0-{select_card}", 0, w/8)
+                    can.move(f"hand-0-{num}", 0, -w/8)
+                    select_card = num
+        
+        def double_press(num):
+            decide_card(num)
+            
+        
+        can = self.controler.c
+        cs = self.controler.cs
+        w = int((cs[0] - 400) / 5)
+        valid = list(filter(lambda c: self.judge_card_valid(c, table), self.card))
+        mode = "play" if valid else "depose"
+        select_card = None
+        
+        for c in range(len(self.card)):
+            can.tag_bind(f"hand-0-{c}", "<Enter>",
+                            lambda e, n=c: enter(n))
+            can.tag_bind(f"hand-0-{c}", "<Leave>",
+                            lambda e, n=c: leave(n))
+            can.tag_bind(f"hand-0-{c}", "<Button-1>",
+                            lambda e, n=c: press(n))
+            can.tag_bind(f"hand-0-{c}", "<Double-Button-1>",
+                            lambda e, n=c: double_press(n))
+
+
+                    
+        
+
+        
+
+        
+
+        

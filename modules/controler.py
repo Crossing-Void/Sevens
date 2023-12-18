@@ -87,12 +87,12 @@ class Control:
             if round == 1:
                 # create player
                 for i in range(4):
-                    info = ("r", None, self.user_select_game_mode.money)
-                    # if i < self.user_select_player_number:
-                    #     self.players.append(player.Player(*info))
-                    # else:
-                    #     self.players.append(player.Com(*info))
-                    self.players.append(player.Com(*info))
+                    info = (self, "r", None, self.user_select_game_mode.money, i)
+                    if i < self.user_select_player_number:
+                        self.players.append(player.Player(*info))
+                    else:
+                        self.players.append(player.Com(*info))
+                    
             self.game()
             
             
@@ -145,11 +145,14 @@ class Control:
         else:
             # end
             # self.end()
+            print("--------")
+            for p in self.players:
+                print(p.id, p.depose)
             return 
         p = self.players[turn_number]
 
         if p.__class__ == player.Com:
-            time.sleep(random.randint(4, 5))
+            time.sleep(random.randint(1, 2))
             result = p.play(self.table)
             if result[0] == "play":
                 p.play_a_card(result[1])
@@ -157,21 +160,22 @@ class Control:
                 self.card.show_card_in_table(result[1])
             elif result[0] == "depose":
                 p.depose_a_card(result[1])
-            print(result)
-
+            print(p.id, result)
             # need to be revised
-            if turn_number % 4 == 0:
-                self.card.show_hand(turn_number, sort=True, turn_over=True)
-            else:
-                self.card.show_hand(
-                    turn_number, sort=False, turn_over=True)
+            self.card.show_hand(
+                turn_number, sort=False, turn_over=False)
             
             
             self.c.update()
             self.turn = self.calculate_turn(turn_number)
             self.play(self.turn)
-        # elif p.__class__ == player.Player:
-        #     p.play(self)
+        
+
+        elif p.__class__ == player.Player:
+            p.play(self.table)
+
+        
+
 
    
 
