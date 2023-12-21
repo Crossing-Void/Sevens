@@ -158,7 +158,7 @@ class Control:
                 self.card.show_card_in_table(result[1])
             elif result[0] == "depose":
                 p.depose_a_card(result[1])
-            print(p.id, result)
+            # print(p.id, result)
             # need to be revised
             self.card.show_hand(
                 turn_number, sort=False, turn_over=False)

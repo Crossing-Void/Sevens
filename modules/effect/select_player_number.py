@@ -89,6 +89,7 @@ class Effect(Base):
     def end(self, r, c):
         player_number = self.calculate_player_number(r, c)
         self.controler.user_select_player_number = player_number
+        self.c.tag_unbind(f"player-{r}{c}", "<Button-1>")
         for row in range(2):
             for column in range(2):
                 if (r == row) and (c == column):

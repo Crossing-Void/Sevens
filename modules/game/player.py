@@ -72,6 +72,17 @@ class Player(_player):
 
     def play(self, table):
         # <<<<<<<<<<<<<<<<<< change args to id
+        def judge_position(genre: str, num):
+            if genre not in ["up", "down"]:
+                raise ValueError(f"The genre in position should be up or down, but got: {genre}")
+            
+            if genre == "up":
+                if can.coords(f"hand-0-{num}")[1] < cs[1] + w / 8 + 1:
+                    can.move(f"hand-0-{num}", 0, w/8)
+            else:
+                if can.coords(f"hand-0-{num}")[1] > cs[1] + w / 4 - 1:
+                    can.move(f"hand-0-{num}", 0, -w/8)
+
         def unbind():
             for c in range(len(self.card)):
                 can.tag_unbind(f"hand-0-{c}", "<Enter>")
@@ -101,33 +112,28 @@ class Player(_player):
             self.controler.play(self.controler.turn)
                
         def enter(num):
-            if select_card:
+            if select_card is not None:
                 return
-            if can.coords(f"hand-0-{num}")[1] > cs[1] + w / 4 - 1:
-                can.move(f"hand-0-{num}", 0, -w/8)
+            judge_position("down", num)
                 
         def leave(num):
-            if select_card:
+            if select_card is not None:
                 return
-            if can.coords(f"hand-0-{num}")[1] < cs[1] + w / 8 + 1:
-                can.move(f"hand-0-{num}", 0, w/8)
+            judge_position("up", num)
                 
            
         
         def press(num):
             nonlocal select_card
             if select_card is None:
-                if can.coords(f"hand-0-{num}")[1] > cs[1] + w / 4 - 1:
-                    can.move(f"hand-0-{num}", 0, -w/8)
-                select_card = num
-
+                judge_position("down", num)
             else:
                 if num == select_card:
                     decide_card(num)
                 else:
-                    can.move(f"hand-0-{select_card}", 0, w/8)
-                    can.move(f"hand-0-{num}", 0, -w/8)
-                    select_card = num
+                    judge_position("up", select_card)
+                    judge_position("down", num)
+            select_card = num
         
         def double_press(num):
             decide_card(num)
@@ -160,12 +166,13 @@ class Player(_player):
             for obj in objs[1:]:
                 tags = can.gettags(obj)
                 for tag in tags:
-                    m = re.search("^hand-\d-(\d)$", tag)
+                    m = re.search("^hand-\d+-(\d+)$", tag)
                     if m:
-                        if int(m.group(1)) > max_number:
+                       if int(m.group(1)) > max_number:
                             max_number = int(m.group(1))
             if max_number != -1:
                 enter(max_number)
+               
                         
 
             

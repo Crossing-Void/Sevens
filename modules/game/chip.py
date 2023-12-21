@@ -42,6 +42,9 @@ class Chip:
         self.cs = self.main.canvas_side
 
     def __money_to_number_of_chip(self, money: int):
+        if money < 0:
+            raise ValueError(f"The money should be larger than 0, but got: {money}")
+        
         number_of_chip = []
         for value in _chip_value:
             num = money // value
